@@ -3,7 +3,7 @@
 Newest entries first.
 
 ## 2026-10-27: Milestone 2.1, annotation schema and validation (complete)
-**Status: complete** (committed on `feat/annotation-schema-m2-1`, not yet merged). Prepares the data model for AI output. No model or provider is integrated; everything is still mock/manual data.
+**Status: complete.** Prepares the data model for AI output. No model or provider is integrated; everything is still mock/manual data.
 
 - `Annotation` now has a stable string `id`, a per-annotation `status` (`found | ambiguous | not_found`) and a nullable `box` (`lib/types.ts`).
 - Zod validation in `lib/annotation-schema.ts`: coordinates within 0-100, `width/height > 0`, `x + width <= 100`, `y + height <= 100`, finite numbers; `found` requires a box; `ambiguous`/`not_found` must have `box: null`; ids must be unique.
