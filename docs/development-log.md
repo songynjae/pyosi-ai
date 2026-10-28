@@ -2,6 +2,21 @@
 
 Newest entries first.
 
+## 2026-10-27: Milestone 2.2-B, Meta Model API grounding spike (complete)
+**Status: complete.** Isolated spike; the app, UI and API routes are unchanged and still use mock annotations. Details in `docs/m2-2b-api-spike.md`.
+
+- Script `spikes/m2-2b/run.mjs`: one request per run, no retries, key read only from `.env.local` and never printed. Dry run by default; `--send` makes the request, `--case refresh` selects the not_found case. `spikes/m2-2b/overlay.html` draws the model and ground-truth boxes for a visual check.
+- Confirmed from Meta's docs: `POST https://api.meta.ai/v1/chat/completions`, Bearer `MODEL_API_KEY`, model `muse-spark-1.3` (standard mode; `-contributor` trains on prompts and is not used), base64 data URL `image_url` input, `response_format` json_schema.
+- Results on the Floraday fixture (2 requests, about $0.0047 each, 1.8-2.1 s): the button was found with IoU 0.933 against the human-measured box and the box lines up visually; the missing Refresh button returned `not_found` with a null box.
+- Coordinate convention observed: 0-1000 grid, top-left origin, `[x_min, y_min, x_max, y_max]`, as prompted. Converting to Pyosi's percent boxes means dividing by 10 and turning min/max into x/y/width/height.
+
+### Remaining issues / decisions
+- Only two samples: variance, `ambiguous`, `strict: true` and other screenshots are untested.
+- Most output tokens were reasoning (about 140 of 200) even at `reasoning_effort: "minimal"`.
+- Meta's dashboard showed 1 request after 2 were sent (likely reporting lag; request ids are in the spike doc). Still to confirm.
+- `sam-3.1` (boxes and masks) is a possible later spike if Spark's boxes prove loose.
+- Confirm the Floraday screenshot may be published before making the repo public.
+
 ## 2026-10-27: Milestone 2.1, annotation schema and validation (complete)
 **Status: complete.** Prepares the data model for AI output. No model or provider is integrated; everything is still mock/manual data.
 

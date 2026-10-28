@@ -43,3 +43,6 @@ pnpm-debug.log*
 *.pem
 .idea/
 .vscode/
+
+# M2.2-B API spike raw responses (review before committing)
+spikes/m2-2b/results/

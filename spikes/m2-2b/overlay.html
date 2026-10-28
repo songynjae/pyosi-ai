@@ -1,0 +1,33 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>M2.2-B box overlay</title>
+<style>
+  body { font: 14px system-ui; margin: 16px; }
+  canvas { max-width: 100%; border: 1px solid #ccc; }
+  .red { color: #d00 } .green { color: #080 }
+</style>
+<p><b class="red">Red</b> = model box [431, 907, 571, 973] (0-1000 grid) &nbsp; <b class="green">Green</b> = ground truth [883, 1023, 1169, 1095] px</p>
+<p><label><input type="checkbox" id="crop" checked> Zoom on the button area</label></p>
+<canvas id="c"></canvas>
+<script>
+  // Local check only, no network. Open this file in a browser (file://).
+  const W = 2048, H = 1124;
+  const model = [431, 907, 571, 973].map((v, i) => (v / 1000) * (i % 2 ? H : W));
+  const truth = [883, 1023, 1169, 1095];
+  const img = new Image();
+  img.src = "../../public/fixtures/floraday.png";
+  img.onload = draw;
+  document.getElementById("crop").onchange = draw;
+  function draw() {
+    const c = document.getElementById("c"), g = c.getContext("2d");
+    const zoom = document.getElementById("crop").checked;
+    const [sx, sy, sw, sh] = zoom ? [700, 900, 700, 250] : [0, 0, W, H];
+    c.width = zoom ? sw * 2 : W; c.height = zoom ? sh * 2 : H;
+    const k = c.width / sw;
+    g.drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height);
+    for (const [b, col] of [[truth, "#0a0"], [model, "#e00"]]) {
+      g.strokeStyle = col; g.lineWidth = 3;
+      g.strokeRect((b[0] - sx) * k, (b[1] - sy) * k, (b[2] - b[0]) * k, (b[3] - b[1]) * k);
+    }
+  }
+</script>
