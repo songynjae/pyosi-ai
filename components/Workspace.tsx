@@ -6,6 +6,7 @@ import { AnnotationOverlay } from "./AnnotationOverlay";
 import { parseAnnotations } from "@/lib/annotation-schema";
 import { MAX_NOTES_CHARS } from "@/lib/prompts/annotate";
 import { upscaleImage } from "@/lib/upscale";
+import { pickDroppedFile, pickPastedImage } from "@/lib/dropped-file";
 import { validateImageFile } from "@/lib/image-validation";
 import { FLORADAY_IMAGE } from "@/lib/fixtures/floraday";
 import type { Annotation, InvalidAnnotation } from "@/lib/types";
@@ -32,9 +33,12 @@ export function Workspace() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
+  const [dragging, setDragging] = useState(false);
   // Bumped on every new image and request so a late response is ignored.
   const requestId = useRef(0);
   const fileInput = useRef<HTMLInputElement>(null);
+  // Latest handler for the window-level drop and paste listeners below.
+  const handleFileRef = useRef<(file: File | undefined) => void>(() => {});
 
   // Free the object URL created for an uploaded file.
   useEffect(() => {
@@ -42,6 +46,52 @@ export function Workspace() {
       if (imageSrc?.startsWith("blob:")) URL.revokeObjectURL(imageSrc);
     };
   }, [imageSrc]);
+
+  // Drop an image anywhere on the page, or paste one (e.g. a screenshot copied
+  // to the clipboard). Text pastes into the notes box are left alone.
+  useEffect(() => {
+    let depth = 0;
+    const hasFiles = (e: DragEvent) => !!e.dataTransfer?.types.includes("Files");
+    const onEnter = (e: DragEvent) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      depth += 1;
+      setDragging(true);
+    };
+    const onOver = (e: DragEvent) => {
+      if (hasFiles(e)) e.preventDefault();
+    };
+    const onLeave = (e: DragEvent) => {
+      if (!hasFiles(e)) return;
+      depth = Math.max(0, depth - 1);
+      if (depth === 0) setDragging(false);
+    };
+    const onDrop = (e: DragEvent) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault(); // otherwise the browser opens the file
+      depth = 0;
+      setDragging(false);
+      handleFileRef.current(pickDroppedFile(e.dataTransfer?.files));
+    };
+    const onPaste = (e: ClipboardEvent) => {
+      const file = pickPastedImage(e.clipboardData);
+      if (!file) return;
+      e.preventDefault();
+      handleFileRef.current(file);
+    };
+    window.addEventListener("dragenter", onEnter);
+    window.addEventListener("dragover", onOver);
+    window.addEventListener("dragleave", onLeave);
+    window.addEventListener("drop", onDrop);
+    window.addEventListener("paste", onPaste);
+    return () => {
+      window.removeEventListener("dragenter", onEnter);
+      window.removeEventListener("dragover", onOver);
+      window.removeEventListener("dragleave", onLeave);
+      window.removeEventListener("drop", onDrop);
+      window.removeEventListener("paste", onPaste);
+    };
+  }, []);
 
   function clearAnnotations() {
     requestId.current += 1;
@@ -60,6 +110,7 @@ export function Workspace() {
       return;
     }
     setImageError(null);
+    if (imageSrc) setNotes(""); // replacing an image: the old notes no longer fit
     setSampleId(null);
     setImageFile(file);
     setImageSrc(URL.createObjectURL(file));
@@ -69,9 +120,24 @@ export function Workspace() {
   function selectSample(id: SampleId) {
     if (fileInput.current) fileInput.current.value = "";
     setImageError(null);
+    if (imageSrc) setNotes("");
     setSampleId(id);
     setImageFile(null);
     setImageSrc(SAMPLES[id].src);
+    clearAnnotations();
+  }
+
+  useEffect(() => {
+    handleFileRef.current = handleFile;
+  });
+
+  function resetImage() {
+    if (fileInput.current) fileInput.current.value = "";
+    setImageError(null);
+    setNotes("");
+    setSampleId(null);
+    setImageFile(null);
+    setImageSrc(null);
     clearAnnotations();
   }
 
@@ -122,35 +188,83 @@ export function Workspace() {
       </header>
 
       <div className={styles.grid}>
-        <section className={styles.panel} aria-label="Input">
-          <label className={styles.field}>
-            <span>Screenshot</span>
-            <input
-              ref={fileInput}
-              type="file"
-              accept="image/png,image/jpeg"
-              onChange={(e) => handleFile(e.target.files?.[0])}
-            />
-          </label>
-          <p className={styles.hint}>PNG or JPEG, up to 10 MB.</p>
+        {/* First in the DOM so it comes first on narrow screens; the grid puts it on the right. */}
+        <section
+          className={`${styles.panel} ${styles.screenshotPanel} ${dragging ? styles.dragging : ""}`}
+          aria-label="Screenshot"
+        >
+          <div className={styles.previewHeader}>
+            <h2>Screenshot</h2>
+            {imageSrc && (
+              <button type="button" className={styles.link} onClick={resetImage}>
+                New image
+              </button>
+            )}
+          </div>
+
+          <input
+            ref={fileInput}
+            type="file"
+            accept="image/png,image/jpeg"
+            hidden
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = ""; // lets the same file be chosen again
+              handleFile(file);
+            }}
+          />
+
           {imageError && (
             <p className={styles.error} role="alert">
               {imageError}
             </p>
           )}
-          <div className={styles.samples}>
-            {(Object.keys(SAMPLES) as SampleId[]).map((id) => (
-              <button
-                key={id}
-                type="button"
-                className={styles.link}
-                onClick={() => selectSample(id)}
-              >
-                {SAMPLES[id].label}
-              </button>
-            ))}
-          </div>
 
+          {imageSrc ? (
+            <div className={styles.frame}>
+              {/* Plain <img>: the source is a local blob URL, which next/image can't optimize. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={imageSrc} alt="Uploaded screenshot" />
+              <AnnotationOverlay annotations={annotations} />
+              {dragging && (
+                <div className={styles.dropOverlay}>Drop to replace the image.</div>
+              )}
+            </div>
+          ) : (
+            <div className={styles.dropzone}>
+              <p className={styles.dropTitle}>
+                {dragging
+                  ? "Drop the image here."
+                  : "Drop or paste (⌘V / Ctrl+V) a screenshot here"}
+              </p>
+              <button
+                type="button"
+                className={styles.secondary}
+                onClick={() => fileInput.current?.click()}
+              >
+                Choose file
+              </button>
+              <p className={styles.hint}>PNG or JPEG, up to 10 MB.</p>
+              {(Object.keys(SAMPLES) as SampleId[]).map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  className={styles.link}
+                  onClick={() => selectSample(id)}
+                >
+                  {SAMPLES[id].label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {(annotations.length > 0 || invalid.length > 0) && (
+            <h3 className={styles.listHeading}>Annotations</h3>
+          )}
+          <AnnotationList annotations={annotations} invalid={invalid} />
+        </section>
+
+        <section className={`${styles.panel} ${styles.notesPanel}`} aria-label="Notes">
           <label className={styles.field}>
             <span>Rough notes</span>
             <textarea
@@ -170,32 +284,18 @@ export function Workspace() {
           >
             {loading ? "Generating…" : "Generate"}
           </button>
-          {imageSrc && notes.trim() === "" && (
-            <p className={styles.hint}>Add some notes to enable Generate.</p>
+          {!imageSrc ? (
+            <p className={styles.generateHint}>Add a screenshot to enable Generate.</p>
+          ) : (
+            notes.trim() === "" && (
+              <p className={styles.generateHint}>Add some notes to enable Generate.</p>
+            )
           )}
           {generateError && (
             <p className={styles.error} role="alert">
               {generateError}
             </p>
           )}
-        </section>
-
-        <section className={styles.panel} aria-label="Preview">
-          <h2>Preview</h2>
-          {imageSrc ? (
-            <div className={styles.frame}>
-              {/* Plain <img>: the source is a local blob URL, which next/image can't optimize. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imageSrc} alt="Uploaded screenshot" />
-              <AnnotationOverlay annotations={annotations} />
-            </div>
-          ) : (
-            <div className={styles.empty}>
-              Upload a screenshot to see the preview.
-            </div>
-          )}
-
-          <AnnotationList annotations={annotations} invalid={invalid} />
         </section>
       </div>
     </main>

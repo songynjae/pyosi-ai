@@ -100,6 +100,20 @@ Driven in the browser (file picked, notes typed, Generate clicked); the page rec
 - `SMALL_BOX_PERCENT` 6 -> 10 (`lib/badge-placement.ts`): a box under 10% wide or high now gets its badge above (or below near the top edge), so icons like the Cursor voice icon (6.2% x 8.3%) are no longer covered. Buttons about 6% high (e.g. Floraday's 14% x 6.4%) also move to "above"; large boxes keep the corner badge.
 - Checked in the browser with a stubbed API (0 real calls): the voice icon box shows its badge above it with the icon fully visible; a large box keeps the corner badge. The percent rule is an approximation: the badge is a fixed 24 px, so on very large previews a 10% box is wider than needed and on very small ones a larger box could still be crowded.
 
+### Drop, paste and "New image" (user-approved)
+- Drop an image anywhere on the page (a dashed outline and "Drop the image here." show while dragging) or paste one from the clipboard. Text pastes into the notes box are untouched; dropping elsewhere no longer makes the browser open the file. Uses the same validation as the file picker, so a non-image shows the usual "Unsupported file type" message. `lib/dropped-file.ts`, window listeners in `components/Workspace.tsx`.
+- Replacing an existing image (picker, drop, paste or sample) clears the notes and annotations; the first image keeps any notes already typed. A **New image** link in the Preview header resets everything.
+- Tests: 3 new unit tests for picking the file (53 pass). Checked in the browser with simulated drag, drop and paste events (0 API calls): highlight, drop, paste replacing the image and clearing notes, text paste ignored, PDF drop error, reset.
+- Not verified: a real OS drag from Finder and a real clipboard screenshot paste (only simulated events), touch devices. (The "No file chosen" gap was fixed by the layout change below.)
+- Download / copy of the annotated image is not implemented (decision pending; it is also listed as out of scope for the MVP in the brief, but as Milestone 4 elsewhere).
+
+### Screenshot section layout (user-approved)
+- The file picker, the drop target and the preview are now one **Screenshot** section on the right (it replaces the separate Screenshot field and "Preview"). Empty state: a dashed drop zone with "Choose file", the size hint and the Floraday sample link. With an image: the picture with boxes, a **New image** link, and an **Annotations** list heading once results exist. The notes and Generate button are on the left; on narrow screens the Screenshot section comes first.
+- The native file input is hidden and opened by the "Choose file" button, so "No file chosen" no longer shows after a drop or paste, and the same file can be chosen again.
+- Dragging shows "Drop the image here." (empty) or a "Drop to replace the image." overlay (image present), so the user knows the page accepts the drop and where it lands.
+- The Generate hint ("Add a screenshot..." / "Add some notes...") now has spacing under the button.
+- Checked in the browser with simulated events (0 API calls): Choose file opens the picker, drop, paste, drag overlay, PDF error, New image reset, desktop and mobile layout. Not verified: a real OS file dialog and a real Finder drag.
+
 ### Open issues / decisions
 - The 800x600 desktop screenshot gave inconsistent, partly wrong boxes. Investigated below: it is resolution-related noise, not a fixed offset. Remedy (upscale small images) is proposed but needs approval.
 - Output is not deterministic (extra entries between identical requests).

@@ -24,7 +24,7 @@ Open http://localhost:3000.
 
 ### Try it
 
-1. Click **or use the Floraday sample** (or upload a PNG/JPEG up to 10 MB).
+1. In the **Screenshot** area, drop a PNG/JPEG (up to 10 MB) anywhere on the page, paste one from the clipboard (⌘V / Ctrl+V), click **Choose file**, or click **or use the Floraday sample**. **New image** clears the image, notes and annotations.
 2. Type some rough notes (required, up to 4,000 characters).
 3. Click **Generate**. Numbered callouts and bounding boxes appear over the screenshot, and annotations without a location are listed below it. Each Generate sends one request to the model API (costs a few tenths of a cent). Screenshots under 1400 px on the long side are upscaled 2x in the browser first, which gives more accurate boxes.
 
