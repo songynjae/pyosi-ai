@@ -6,6 +6,7 @@
 
 .list li {
   margin-bottom: 6px;
+  border-radius: 4px;
 }
 
 .note {
@@ -30,4 +31,41 @@
 .invalid ul {
   margin: 0;
   padding-left: 18px;
+}
+
+.selected {
+  background: color-mix(in srgb, var(--callout) 12%, transparent);
+}
+
+.action {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin-right: 8px;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: underline;
+}
+
+.action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.editor input,
+.editor textarea {
+  font: inherit;
+  padding: 6px 8px;
+}
+
+.editActions {
+  display: flex;
+  align-items: center;
 }

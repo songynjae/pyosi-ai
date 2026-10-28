@@ -2,6 +2,28 @@
 
 Newest entries first.
 
+## 2026-10-28: Annotation text editing (user-approved; added to M3)
+**Status: implemented on `feat/m3-box-editing`, NOT committed.** User chose text editing now and badge dragging after export (the badge position needs a new schema field, and export has to draw it).
+
+- Each list entry has an **Edit** link: label and description become fields with Save / Cancel (Escape cancels). Works for every status, including `ambiguous` and `not_found`.
+- Label can't be empty (schema requires it; Save is disabled with a message). An empty description is allowed. Both are trimmed (`setAnnotationText` in `lib/box-edit.ts`). Edits live in React state only; Generate replaces them.
+- Clicking an entry that has a box selects that box on the image, and the selected entry is highlighted.
+- Tests: 2 new (70 pass in total), plus `tsc`, `lint`, `build`. Browser check with a stubbed API (0 real calls): list click selects the box, edit and Save update the entry, Save is disabled for a blank label, Escape cancels.
+- Not verified: how the editor looks on narrow screens and with long text.
+
+## 2026-10-28: Milestone 3, basic box editing (implemented; needs human visual review)
+**Status: implemented on `feat/m3-box-editing`, NOT committed.** Scope (user-approved): move, resize and delete only. Add-box and description editing are out.
+
+- Click a box to select it (dashed outline, 8 resize handles; boxes under 10% in either direction get corner handles only). Drag the box to move, drag a handle to resize. Pointer events, so mouse, touch and pen share one path (`components/AnnotationOverlay.tsx`, `touch-action: none`).
+- The drag math is a pure module, `lib/box-edit.ts` (`applyDrag`, `setAnnotationBox`, `removeAnnotation`): always computed from the box at drag start, clamped to the image, minimum 1% per side (a box already smaller keeps its own size as the floor). The result always passes `BoxSchema`.
+- Delete removes the whole annotation (list entry included) with the Delete/Backspace key (ignored while typing in a field) or the "Delete annotation" link under the image. No confirmation, no undo. Numbers follow list order, so later boxes shift up by one.
+- Edits live in React state only. Generate (and a new image) replaces everything, with no warning (user decision).
+- Only `found` boxes are editable; `ambiguous` and `not_found` entries stay list-only.
+- Tests: 15 new in `tests/box-edit.test.ts` (68 pass in total), plus `tsc`, `lint`, `build`.
+- Browser check with a stubbed API (0 real calls): selected, moved, resized (se handle) and deleted a box with real mouse drags and the Delete key; the list renumbered.
+- Not verified: touch devices, Backspace while the notes box is focused (guarded in code, not exercised), very small boxes, overlapping boxes, feel of the drag.
+- Fixed (user-approved): boxes with the corner badge get no top-left resize handle, so the number stays visible; that corner is reached with the top and left handles. Small boxes (badge above or below) keep all four corner handles.
+
 ## 2026-10-27: Milestone 2.2-C, AI annotation route and UI wiring (implemented; live accuracy issue open)
 **Status: implemented and live-tested with 8 requests; NOT committed yet, pending a decision on small-image handling (see the investigation).**
 

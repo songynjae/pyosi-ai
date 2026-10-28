@@ -4,12 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { AnnotationList } from "./AnnotationList";
 import { AnnotationOverlay } from "./AnnotationOverlay";
 import { parseAnnotations } from "@/lib/annotation-schema";
+import { removeAnnotation, setAnnotationBox, setAnnotationText } from "@/lib/box-edit";
 import { MAX_NOTES_CHARS } from "@/lib/prompts/annotate";
 import { upscaleImage } from "@/lib/upscale";
 import { pickDroppedFile, pickPastedImage } from "@/lib/dropped-file";
 import { validateImageFile } from "@/lib/image-validation";
 import { FLORADAY_IMAGE } from "@/lib/fixtures/floraday";
-import type { Annotation, InvalidAnnotation } from "@/lib/types";
+import type { Annotation, BoxPercent, InvalidAnnotation } from "@/lib/types";
 import styles from "./Workspace.module.css";
 
 // Built-in sample (a dev/test asset). It goes through the same model call as an upload.
@@ -34,6 +35,7 @@ export function Workspace() {
   const [loading, setLoading] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   // Bumped on every new image and request so a late response is ignored.
   const requestId = useRef(0);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -93,8 +95,47 @@ export function Workspace() {
     };
   }, []);
 
+  // Selection only counts while the annotation still exists and has a box.
+  const selected =
+    annotations.find((a) => a.id === selectedId && a.status === "found" && a.box) ?? null;
+  const hasBoxes = annotations.some((a) => a.status === "found" && a.box);
+
+  function deleteSelected() {
+    if (!selected) return;
+    setAnnotations((prev) => removeAnnotation(prev, selected.id));
+    setSelectedId(null);
+  }
+  // Latest handler for the window-level key listener below.
+  const deleteSelectedRef = useRef(deleteSelected);
+  useEffect(() => {
+    deleteSelectedRef.current = deleteSelected;
+  });
+
+  // Delete / Backspace removes the selected box, except while typing in a field.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Delete" && e.key !== "Backspace") return;
+      const t = e.target as HTMLElement | null;
+      if (t?.closest("input, textarea, select, [contenteditable]")) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      e.preventDefault();
+      deleteSelectedRef.current();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  function changeBox(id: string, box: BoxPercent) {
+    setAnnotations((prev) => setAnnotationBox(prev, id, box));
+  }
+
+  function changeText(id: string, text: { label: string; description: string }) {
+    setAnnotations((prev) => setAnnotationText(prev, id, text));
+  }
+
   function clearAnnotations() {
     requestId.current += 1;
+    setSelectedId(null);
     setLoading(false);
     setGenerateError(null);
     setAnnotations([]);
@@ -146,6 +187,7 @@ export function Workspace() {
     const id = ++requestId.current;
     setLoading(true);
     setGenerateError(null);
+    setSelectedId(null);
     setAnnotations([]);
     setInvalid([]);
     try {
@@ -221,11 +263,16 @@ export function Workspace() {
           )}
 
           {imageSrc ? (
-            <div className={styles.frame}>
+            <div className={styles.frame} onPointerDown={() => setSelectedId(null)}>
               {/* Plain <img>: the source is a local blob URL, which next/image can't optimize. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={imageSrc} alt="Uploaded screenshot" />
-              <AnnotationOverlay annotations={annotations} />
+              <AnnotationOverlay
+                annotations={annotations}
+                selectedId={selected?.id ?? null}
+                onSelect={setSelectedId}
+                onChangeBox={changeBox}
+              />
               {dragging && (
                 <div className={styles.dropOverlay}>Drop to replace the image.</div>
               )}
@@ -258,10 +305,31 @@ export function Workspace() {
             </div>
           )}
 
+          {imageSrc && hasBoxes && (
+            <div className={styles.editBar}>
+              <span>
+                {selected
+                  ? "Drag to move, drag a handle to resize."
+                  : "Click a box to move, resize or delete it."}
+              </span>
+              {selected && (
+                <button type="button" className={styles.link} onClick={deleteSelected}>
+                  Delete annotation
+                </button>
+              )}
+            </div>
+          )}
+
           {(annotations.length > 0 || invalid.length > 0) && (
             <h3 className={styles.listHeading}>Annotations</h3>
           )}
-          <AnnotationList annotations={annotations} invalid={invalid} />
+          <AnnotationList
+            annotations={annotations}
+            invalid={invalid}
+            selectedId={selected?.id ?? null}
+            onSelect={setSelectedId}
+            onChangeText={changeText}
+          />
         </section>
 
         <section className={`${styles.panel} ${styles.notesPanel}`} aria-label="Notes">
