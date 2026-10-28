@@ -6,7 +6,6 @@ import {
   FLORADAY_IMAGE,
   pixelBoxToPercent,
 } from "../lib/fixtures/floraday.ts";
-import { MOCK_ANNOTATIONS } from "../lib/mock-annotations.ts";
 
 describe("fixtures", () => {
   it("the Floraday fixture passes validation with no invalid entries", () => {
@@ -33,9 +32,5 @@ describe("fixtures", () => {
     assert.ok(Math.abs(button.y - 91.014) < 0.001);
     assert.ok(Math.abs(button.width - 13.965) < 0.001);
     assert.ok(Math.abs(button.height - 6.406) < 0.001);
-  });
-
-  it("the mock sample passes validation too", () => {
-    assert.equal(parseAnnotations(MOCK_ANNOTATIONS).invalid.length, 0);
   });
 });

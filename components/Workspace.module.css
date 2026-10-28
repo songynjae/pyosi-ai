@@ -107,12 +107,6 @@
   cursor: not-allowed;
 }
 
-.mockNote {
-  margin: 10px 0 0;
-  font-size: 12px;
-  color: var(--muted);
-}
-
 .frame {
   position: relative;
   border: 1px solid var(--border);

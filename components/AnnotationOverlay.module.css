@@ -25,3 +25,16 @@
   display: grid;
   place-items: center;
 }
+
+/* Small boxes: keep the badge off the target, centered on the box. */
+.badgeAbove {
+  top: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.badgeBelow {
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+}

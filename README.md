@@ -2,7 +2,7 @@
 
 Pyosi turns screenshots and rough technical notes into clear, structured, editable visual explanations. Built as a side project for a hackathon submission.
 
-> **Status:** early MVP scaffold. The Generate button shows **mock** annotations only. No AI is integrated yet.
+> **Status:** early MVP. Generate sends the screenshot and notes to Meta's Muse Spark through a server-side route (`POST /api/annotate`). Requires `MODEL_API_KEY` in `.env.local`.
 
 ## Tech stack
 
@@ -24,9 +24,9 @@ Open http://localhost:3000.
 
 ### Try it
 
-1. Click **or use a sample screenshot** or **or use the Floraday fixture** (or upload a PNG/JPEG up to 10 MB).
-2. Optionally type some rough notes.
-3. Click **Generate**. Numbered callouts and bounding boxes appear over the screenshot, and annotations without a location are listed below it. This is hard-coded mock data (`lib/mock-annotations.ts`) or a manually defined fixture (`lib/fixtures/floraday.ts`).
+1. Click **or use the Floraday sample** (or upload a PNG/JPEG up to 10 MB).
+2. Type some rough notes (required, up to 4,000 characters).
+3. Click **Generate**. Numbered callouts and bounding boxes appear over the screenshot, and annotations without a location are listed below it. Each Generate sends one request to the model API (costs a few tenths of a cent). Screenshots under 1400 px on the long side are upscaled 2x in the browser first, which gives more accurate boxes.
 
 ### Scripts
 
@@ -43,10 +43,10 @@ Open http://localhost:3000.
 ```
 app/          Next.js App Router (layout, page, global styles)
 components/   UI components (Workspace, AnnotationOverlay)
-lib/          Types, Zod validation, mock annotation data and fixtures
+lib/          Types, Zod validation, model client, prompts and fixtures
 tests/        Unit tests
 docs/         Product brief and development log
-public/       Static files, including the sample screenshot
+public/       Static files, including the Floraday sample
 ```
 
 ## Docs

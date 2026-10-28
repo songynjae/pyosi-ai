@@ -1,3 +1,4 @@
+import { badgePlacement } from "@/lib/badge-placement";
 import type { Annotation } from "@/lib/types";
 import styles from "./AnnotationOverlay.module.css";
 
@@ -5,6 +6,14 @@ import styles from "./AnnotationOverlay.module.css";
 // Positions are percentages, so the overlay scales with the image.
 // The number is the entry's position in `annotations` (same as the list), so
 // annotations without a location leave a gap instead of shifting the rest.
+// Small boxes get their badge above (or below, near the top edge) so it does
+// not cover the target.
+const PLACEMENT_CLASS = {
+  corner: "",
+  above: styles.badgeAbove,
+  below: styles.badgeBelow,
+};
+
 export function AnnotationOverlay({
   annotations,
 }: {
@@ -25,7 +34,11 @@ export function AnnotationOverlay({
               height: `${a.box.height}%`,
             }}
           >
-            <span className={styles.badge}>{index + 1}</span>
+            <span
+              className={`${styles.badge} ${PLACEMENT_CLASS[badgePlacement(a.box)]}`}
+            >
+              {index + 1}
+            </span>
           </div>
         ) : null,
       )}

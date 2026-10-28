@@ -14,8 +14,8 @@ TypeScript, Next.js (App Router), React, Node.js runtime for API routes. npm. Pl
 - `npm run build`: production build
 
 ## Current state
-- Implemented: single-page UI with upload, notes, Generate, preview, and **mock** annotations.
-- Not implemented: AI integration, annotation editing, PNG export. Do not add these unless asked.
+- Implemented: single-page UI with upload, notes, Generate, preview, and AI annotations via `POST /api/annotate` (Meta `muse-spark-1.3`, standard mode).
+- Not implemented: annotation editing, PNG export. Do not add these unless asked.
 
 ## Guidelines
 - Keep the architecture minimal; the deadline matters more than polish. Avoid new dependencies unless clearly needed.
