@@ -24,9 +24,9 @@ Open http://localhost:3000.
 
 ### Try it
 
-1. Click **or use a sample screenshot** (or upload your own image).
+1. Click **or use a sample screenshot** or **or use the Floraday fixture** (or upload a PNG/JPEG up to 10 MB).
 2. Optionally type some rough notes.
-3. Click **Generate**. Three numbered callouts and bounding boxes appear over the screenshot. This is hard-coded mock data (`lib/mock-annotations.ts`).
+3. Click **Generate**. Numbered callouts and bounding boxes appear over the screenshot, and annotations without a location are listed below it. This is hard-coded mock data (`lib/mock-annotations.ts`) or a manually defined fixture (`lib/fixtures/floraday.ts`).
 
 ### Scripts
 
@@ -36,13 +36,15 @@ Open http://localhost:3000.
 | `npm run build` | Production build (includes type checking) |
 | `npm start` | Serve the production build |
 | `npm run lint` | Run ESLint |
+| `npm test` | Run unit tests (Node's built-in test runner) |
 
 ## Project structure
 
 ```
 app/          Next.js App Router (layout, page, global styles)
 components/   UI components (Workspace, AnnotationOverlay)
-lib/          Types and mock annotation data
+lib/          Types, Zod validation, mock annotation data and fixtures
+tests/        Unit tests
 docs/         Product brief and development log
 public/       Static files, including the sample screenshot
 ```

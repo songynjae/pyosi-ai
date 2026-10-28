@@ -1,17 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AnnotationList } from "./AnnotationList";
 import { AnnotationOverlay } from "./AnnotationOverlay";
+import { parseAnnotations } from "@/lib/annotation-schema";
+import { validateImageFile } from "@/lib/image-validation";
+import { FLORADAY_ANNOTATIONS, FLORADAY_IMAGE } from "@/lib/fixtures/floraday";
 import { MOCK_ANNOTATIONS } from "@/lib/mock-annotations";
-import type { Annotation } from "@/lib/types";
+import type { Annotation, InvalidAnnotation } from "@/lib/types";
 import styles from "./Workspace.module.css";
 
-const SAMPLE_SRC = "/sample-screenshot.svg";
+// MOCK: each built-in sample ships with hard-coded annotations.
+const SAMPLES = {
+  orders: {
+    label: "or use a sample screenshot",
+    src: "/sample-screenshot.svg",
+    annotations: MOCK_ANNOTATIONS,
+  },
+  floraday: {
+    label: "or use the Floraday fixture",
+    src: FLORADAY_IMAGE.src,
+    annotations: FLORADAY_ANNOTATIONS,
+  },
+};
+type SampleId = keyof typeof SAMPLES;
 
 export function Workspace() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
+  const [sampleId, setSampleId] = useState<SampleId | null>(null);
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
+  const [invalid, setInvalid] = useState<InvalidAnnotation[]>([]);
+  const [imageError, setImageError] = useState<string | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
 
   // Free the object URL created for an uploaded file.
   useEffect(() => {
@@ -20,20 +41,41 @@ export function Workspace() {
     };
   }, [imageSrc]);
 
+  function clearAnnotations() {
+    setAnnotations([]);
+    setInvalid([]);
+  }
+
   function handleFile(file: File | undefined) {
     if (!file) return;
+    const check = validateImageFile(file);
+    if (!check.ok) {
+      setImageError(check.message);
+      if (fileInput.current) fileInput.current.value = "";
+      return;
+    }
+    setImageError(null);
+    setSampleId(null);
     setImageSrc(URL.createObjectURL(file));
-    setAnnotations([]);
+    clearAnnotations();
   }
 
-  function useSample() {
-    setImageSrc(SAMPLE_SRC);
-    setAnnotations([]);
+  function selectSample(id: SampleId) {
+    if (fileInput.current) fileInput.current.value = "";
+    setImageError(null);
+    setSampleId(id);
+    setImageSrc(SAMPLES[id].src);
+    clearAnnotations();
   }
 
-  // MOCK: no AI call yet. Shows hard-coded annotations regardless of the notes.
+  // MOCK: no AI call yet. Shows hard-coded annotations regardless of the notes
+  // (the Orders sample's data for uploads). They go through the same
+  // validation that model output will.
   function handleGenerate() {
-    setAnnotations(MOCK_ANNOTATIONS);
+    const raw = sampleId ? SAMPLES[sampleId].annotations : MOCK_ANNOTATIONS;
+    const parsed = parseAnnotations(raw);
+    setAnnotations(parsed.annotations);
+    setInvalid(parsed.invalid);
   }
 
   return (
@@ -50,14 +92,30 @@ export function Workspace() {
           <label className={styles.field}>
             <span>Screenshot</span>
             <input
+              ref={fileInput}
               type="file"
-              accept="image/*"
+              accept="image/png,image/jpeg"
               onChange={(e) => handleFile(e.target.files?.[0])}
             />
           </label>
-          <button type="button" className={styles.link} onClick={useSample}>
-            or use a sample screenshot
-          </button>
+          <p className={styles.hint}>PNG or JPEG, up to 10 MB.</p>
+          {imageError && (
+            <p className={styles.error} role="alert">
+              {imageError}
+            </p>
+          )}
+          <div className={styles.samples}>
+            {(Object.keys(SAMPLES) as SampleId[]).map((id) => (
+              <button
+                key={id}
+                type="button"
+                className={styles.link}
+                onClick={() => selectSample(id)}
+              >
+                {SAMPLES[id].label}
+              </button>
+            ))}
+          </div>
 
           <label className={styles.field}>
             <span>Rough notes</span>
@@ -78,8 +136,8 @@ export function Workspace() {
             Generate
           </button>
           <p className={styles.mockNote}>
-            Mock mode: annotations below are hard-coded sample data. No AI is
-            called yet.
+            Mock mode: annotations are hard-coded sample data or a manually
+            defined fixture. No AI is called yet.
           </p>
         </section>
 
@@ -98,15 +156,7 @@ export function Workspace() {
             </div>
           )}
 
-          {annotations.length > 0 && (
-            <ol className={styles.list}>
-              {annotations.map((a) => (
-                <li key={a.id}>
-                  <strong>{a.label}</strong>: {a.description}
-                </li>
-              ))}
-            </ol>
-          )}
+          <AnnotationList annotations={annotations} invalid={invalid} />
         </section>
       </div>
     </main>

@@ -1,0 +1,33 @@
+.list {
+  margin: 16px 0 0;
+  padding-left: 22px;
+  font-size: 14px;
+}
+
+.list li {
+  margin-bottom: 6px;
+}
+
+.note {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.invalid {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--callout);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.invalid p {
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+
+.invalid ul {
+  margin: 0;
+  padding-left: 18px;
+}
