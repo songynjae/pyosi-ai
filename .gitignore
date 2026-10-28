@@ -46,3 +46,6 @@ pnpm-debug.log*
 
 # M2.2-B API spike raw responses (review before committing)
 spikes/m2-2b/results/
+
+# Personal Claude instructions (not committed)
+CLAUDE.local.md

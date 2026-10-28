@@ -14,12 +14,22 @@ TypeScript, Next.js (App Router), React, Node.js runtime for API routes. npm. Pl
 - `npm run build`: production build
 
 ## Current state
-- Implemented: single-page UI with upload, notes, Generate, preview, and AI annotations via `POST /api/annotate` (Meta `muse-spark-1.3`, standard mode).
-- Not implemented: annotation editing, PNG export. Do not add these unless asked.
+- Implemented: single-page UI (Screenshot section with drop / paste / Choose file, notes, Generate, boxes and numbered callouts over the image, annotation list) and AI annotations via `POST /api/annotate` (Meta `muse-spark-1.3`, standard mode).
+- Planned next (in scope, not implemented yet): basic box editing (M3: move, resize, delete) and export (download PNG and copy to clipboard, at the original image size, never the upscaled copy). Do not add anything else beyond these unless asked.
+
+## Architecture
+- Flow: browser -> `POST /api/annotate` (`app/api/annotate/route.ts` -> `lib/annotate-handler.ts`) -> `lib/meta-client.ts` -> Meta chat completions. The route checks image size and magic bytes (PNG/JPEG, 10 MB) and notes (1-4000 chars) before any model call. One request per Generate, no automatic retries.
+- Prompt and response schema: `lib/prompts/annotate.ts` (`PROMPT_VERSION`; bump it when the wording changes). Descriptions restate the notes directly ("This icon needs to be revised."), never "the notes say".
+- Coordinates: the model answers `[x_min, y_min, x_max, y_max]` on a 0-1000 grid (top-left origin); `lib/grounding.ts` converts to the percent boxes above, and `lib/model-output.ts` validates with `parseAnnotations()`. Pixel output was compared and was not more accurate.
+- Images under 1400 px on the long side are upscaled 2x in the browser before sending (`lib/upscale.ts`); this gave far more accurate boxes. Only the copy sent to the model is upscaled.
+- `MODEL_API_KEY` (in `.env.local`) is read only in the route. Use the standard model, not `-contributor` (Meta trains on contributor-mode prompts).
+- Numbered badge: boxes under 10% in either direction put it above the box (`lib/badge-placement.ts`).
+- `spikes/m2-2b/run.mjs`: the one-request grounding spike (dry run by default, `--send` makes a live request).
 
 ## Guidelines
 - Keep the architecture minimal; the deadline matters more than polish. Avoid new dependencies unless clearly needed.
-- Clearly mark mock functionality in code (comments starting with `MOCK`) and in docs.
+- Tests never call the network: the model API is replaced by a fake `fetch`. Live requests cost money and need the user's approval.
+- With `cacheComponents` enabled, route handlers cannot export `runtime`.
 - Annotation boxes are percentages (0-100) of the image size and are `null` unless status is `found`. Validate with `parseAnnotations()` in `lib/annotation-schema.ts`; invalid entries are reported, never clamped or turned into `not_found`. See `lib/types.ts`.
 - Never commit secrets. API keys go in `.env.local` (git-ignored); read them only in server code (API routes), never in client components.
 - Next.js here is a recent major version. Check `node_modules/next/dist/docs/` before relying on older conventions.
