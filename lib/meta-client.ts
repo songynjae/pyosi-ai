@@ -33,13 +33,16 @@ export async function requestAnnotations(input: {
   notes: string;
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
+  /** Sampling temperature. Not sent when undefined (the API default applies); only the evaluation harness sets it. */
+  temperature?: number;
 }): Promise<MetaResult> {
-  const { apiKey, image, notes, fetchImpl = fetch, timeoutMs = REQUEST_TIMEOUT_MS } = input;
+  const { apiKey, image, notes, fetchImpl = fetch, timeoutMs = REQUEST_TIMEOUT_MS, temperature } = input;
   const dataUrl = `data:${image.mime};base64,${Buffer.from(image.bytes).toString("base64")}`;
   const body = {
     model: META_MODEL,
     reasoning_effort: "minimal",
     max_completion_tokens: 4000,
+    ...(temperature === undefined ? {} : { temperature }),
     messages: [
       {
         role: "user",

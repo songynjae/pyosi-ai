@@ -37,6 +37,7 @@ const only = value("--cases", null)?.split(",");
 const stamp = new Date().toISOString().slice(0, 10);
 const outDir = resolve(root, value("--out", replayDir ?? `.eval/${stamp}-${PROMPT_VERSION}`));
 const COST_PER_REQUEST = 0.005;
+const temperature = argv.includes("--temperature") ? Number(value("--temperature")) : undefined;
 
 function loadCase(c) {
   if (c.image.make) return c.image.make();
@@ -76,6 +77,7 @@ const prepared = cases.map((c) => {
   return { c, original, ...(original ? prepare(original) : {}) };
 });
 
+if (temperature !== undefined) console.log(`Sampling temperature: ${temperature} (set by --temperature; the app does not send one)`);
 console.log(`Prompt ${PROMPT_VERSION} | cases: ${cases.map((c) => c.id).join(", ")} | runs per case: ${runs}`);
 console.log("");
 for (const p of prepared) {
@@ -110,7 +112,7 @@ for (const p of ready) {
     let content = null;
     let note = null;
     if (send) {
-      const res = await requestAnnotations({ apiKey: key, image: { bytes: p.bytes, mime: "image/png" }, notes: p.c.notes });
+      const res = await requestAnnotations({ apiKey: key, image: { bytes: p.bytes, mime: "image/png" }, notes: p.c.notes, temperature });
       writeFileSync(file, JSON.stringify(res.ok ? { content: res.content, usage: res.usage, latencyMs: res.latencyMs, promptVersion: res.promptVersion } : { error: res.message }, null, 1));
       if (res.ok) content = res.content;
       else note = res.message;
@@ -143,7 +145,7 @@ for (const r of results) {
   const reasons = [...new Set(r.runs.filter((x) => x.score && !x.score.pass).flatMap((x) => x.score.problems))].slice(0, 3).join("; ");
   const verdict = caseVerdict(s);
   console.log(
-    `${r.c.id.padEnd(5)} ${`${s.passes}/${s.runs}`.padEnd(8)} ${(s.entryRange ? s.entryRange.join("-") : "-").padEnd(8)} ${(s.stableCount * 100).toFixed(0).padStart(3)}%    ${String(s.invalid).padEnd(8)} ${pct(s.medianEdgePct).padEnd(12)} ${pct(s.maxEdgePct).padEnd(9)} ${(s.tightShare === null ? "-" : (s.tightShare * 100).toFixed(0) + "%").padEnd(6)} ${(verdict.ok ? "OK" : "FAIL").padEnd(5)} ${reasons || (s.failedRequests ? `${s.failedRequests} request(s) failed` : "")}`,
+    `${r.c.id.padEnd(5)} ${`${s.passes}/${s.runs}`.padEnd(8)} ${(s.entryRange ? s.entryRange.join("-") : "-").padEnd(8)} ${(s.stableCount * 100).toFixed(0).padStart(3)}%    ${String(s.invalid).padEnd(8)} ${pct(s.medianEdgePct).padEnd(12)} ${pct(s.maxEdgePct).padEnd(9)} ${(s.tightShare === null ? "-" : (s.tightShare * 100).toFixed(0) + "%").padEnd(6)} ${(verdict.ok ? "OK" : "FAIL").padEnd(5)} ${reasons}${s.failedRequests ? `${reasons ? " | " : ""}${s.failedRequests} request(s) failed` : ""}`,
   );
 }
 const overall = totalRuns ? totalPass / totalRuns : 0;

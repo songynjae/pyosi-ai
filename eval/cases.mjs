@@ -99,7 +99,8 @@ export const CASES = [
     title: "Floraday, element that does not exist",
     image: { path: "public/fixtures/floraday.png" },
     notes: "The Refresh button is too far from the title.",
-    expect: [{ type: "none" }],
+    // There is no Refresh button: it must be not_found and nothing may be measured (owner-approved definition, 2026-10-29).
+    expect: [{ type: "absent" }],
   },
   {
     id: "D6",

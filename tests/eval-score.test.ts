@@ -73,6 +73,12 @@ describe("scoreRun", () => {
     assert.equal(run([plain], [{ type: "box", region: [250, 150, 600, 350] }]).pass, true);
     assert.equal(run([plain], [{ type: "box", region: [0, 0, 100, 100] }]).missing, 1);
     assert.equal(run([plain], [{ type: "none" }]).pass, false);
+    // "absent": the named element must be not_found, no distance line, other boxes are fine.
+    const title = { id: "t", label: "Title", description: "The title.", status: "found", box: pct(300, 20, 600, 60) };
+    const missingButton = { id: "m", label: "Refresh button", description: "Not visible.", status: "not_found", box: null };
+    assert.equal(run([missingButton, title], [{ type: "absent" }]).pass, true);
+    assert.equal(run([title], [{ type: "absent" }]).pass, false);
+    assert.equal(run([missingButton, measure(pct(100, 100, 200, 140))], [{ type: "absent" }]).pass, false);
     const notFound = { id: "c", label: "Refresh", description: "Not visible.", status: "not_found", box: null };
     assert.equal(run([notFound], [{ type: "none" }]).pass, true);
   });
