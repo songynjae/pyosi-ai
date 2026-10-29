@@ -87,6 +87,14 @@ export function scoreRun({ annotations, invalidCount, expect, notes, size }) {
         missing += 1;
         problems.push(`missing box in ${e.region.join(",")}`);
       }
+    } else if (e.type === "absent") {
+      // The notes name an element that is not in the image: it must be reported as not found. A
+      // distance line is caught below as an extra one; boxes around other elements that the notes
+      // mention (the title the missing button should be far from) are fine.
+      if (!annotations.some((a) => a.status === "not_found")) {
+        missing += 1;
+        problems.push("the named element was not reported as not found");
+      }
     } else if (e.type === "none" && found.length > 0) {
       problems.push(`expected nothing to be found, got ${found.length} located entries`);
       missing += 1;

@@ -102,7 +102,7 @@ describe("handleAnnotate", () => {
     assert.equal(res.status, 200);
     const body = await res.json();
     assert.equal(body.annotations.length, 1);
-    assert.equal(body.promptVersion, "annotate.v10");
+    assert.equal(body.promptVersion, "annotate.v11");
     assert.equal(f.calls.length, 1);
     const headers = f.calls[0].init.headers as Record<string, string>;
     assert.equal(headers.Authorization, `Bearer ${FAKE_KEY}`);
@@ -110,6 +110,17 @@ describe("handleAnnotate", () => {
     assert.ok(!JSON.stringify(body).includes(FAKE_KEY));
     const sent = JSON.parse(String(f.calls[0].init.body));
     assert.equal(sent.model, "muse-spark-1.3");
+  });
+
+  it("sends no sampling temperature unless one is given", async () => {
+    const { requestAnnotations } = await import("../lib/meta-client.ts");
+    const input = { apiKey: FAKE_KEY, image: { bytes: new Uint8Array([1]), mime: "image/png" }, notes: "n" };
+    const without = fakeFetch(() => modelReply(ok));
+    await requestAnnotations({ ...input, fetchImpl: without.impl });
+    assert.equal("temperature" in JSON.parse(String(without.calls[0].init.body)), false);
+    const withT = fakeFetch(() => modelReply(ok));
+    await requestAnnotations({ ...input, temperature: 0, fetchImpl: withT.impl });
+    assert.equal(JSON.parse(String(withT.calls[0].init.body)).temperature, 0);
   });
 
   it("rejects bad input before any model call", async () => {
