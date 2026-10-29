@@ -24,17 +24,137 @@
   font-weight: 700;
   display: grid;
   place-items: center;
+  transform: translateY(var(--badge-dy, 0px));
 }
 
 /* Small boxes: keep the badge off the target, centered on the box. */
 .badgeAbove {
   top: -32px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, var(--badge-dy, 0px));
 }
 
 .badgeBelow {
   top: calc(100% + 8px);
   left: 50%;
+  transform: translate(-50%, var(--badge-dy, 0px));
+}
+
+/* Editing: the overlay itself lets clicks through, boxes catch them. */
+.box {
+  pointer-events: auto;
+  cursor: move;
+  touch-action: none;
+  user-select: none;
+}
+
+.selected {
+  z-index: 1;
+  border-style: dashed;
+  background: color-mix(in srgb, var(--callout) 18%, transparent);
+}
+
+.handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  background: #fff;
+  border: 2px solid var(--callout);
+  border-radius: 2px;
+  touch-action: none;
+}
+
+.handle_nw { left: 0; top: 0; cursor: nwse-resize; }
+.handle_n { left: 50%; top: 0; cursor: ns-resize; }
+.handle_ne { left: 100%; top: 0; cursor: nesw-resize; }
+.handle_e { left: 100%; top: 50%; cursor: ew-resize; }
+.handle_se { left: 100%; top: 100%; cursor: nwse-resize; }
+.handle_s { left: 50%; top: 100%; cursor: ns-resize; }
+.handle_sw { left: 0; top: 100%; cursor: nesw-resize; }
+.handle_w { left: 0; top: 50%; cursor: ew-resize; }
+
+/* Distance line: the box is the measured span; marks sit on its edges. */
+.measure {
+  border-color: transparent;
+  background: none;
+}
+
+.measure.selected {
+  border-color: var(--callout);
+  background: color-mix(in srgb, var(--callout) 12%, transparent);
+}
+
+.line,
+.cap {
+  position: absolute;
+  background: var(--callout);
+  pointer-events: none;
+}
+
+.horizontalLine {
+  left: -2px;
+  right: -2px;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+}
+
+.verticalLine {
+  top: -2px;
+  bottom: -2px;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+}
+
+.horizontalCap {
+  top: 50%;
+  width: 2px;
+  height: min(100%, 28px);
+  transform: translateY(-50%);
+}
+
+.horizontalCap.capStart {
+  left: -2px;
+}
+
+.horizontalCap.capEnd {
+  right: -2px;
+}
+
+.verticalCap {
+  left: 50%;
+  height: 2px;
+  width: min(100%, 28px);
   transform: translateX(-50%);
+}
+
+.verticalCap.capStart {
+  top: -2px;
+}
+
+.verticalCap.capEnd {
+  bottom: -2px;
+}
+
+.valueLabel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0 4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #e03131;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Vertical distance line: the badge sits beside the middle of the line. */
+.badgeRight {
+  top: calc(50% - 12px);
+  left: calc(50% + 8px);
 }

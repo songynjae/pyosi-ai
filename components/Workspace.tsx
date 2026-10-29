@@ -4,12 +4,22 @@ import { useEffect, useRef, useState } from "react";
 import { AnnotationList } from "./AnnotationList";
 import { AnnotationOverlay } from "./AnnotationOverlay";
 import { parseAnnotations } from "@/lib/annotation-schema";
+import { removeAnnotation, setAnnotationBox, setAnnotationText } from "@/lib/box-edit";
 import { MAX_NOTES_CHARS } from "@/lib/prompts/annotate";
-import { upscaleImage } from "@/lib/upscale";
+import {
+  EXPORT_FORMATS,
+  exportFileName,
+  renderExport,
+  type ExportFormat,
+} from "@/lib/export-image";
+import { mapAnnotationsFromPadded } from "@/lib/pad-aspect";
+import { loadPixels } from "@/lib/pixels";
+import { refineAnnotations } from "@/lib/refine-gap";
+import { prepareImage } from "@/lib/upscale";
 import { pickDroppedFile, pickPastedImage } from "@/lib/dropped-file";
 import { validateImageFile } from "@/lib/image-validation";
 import { FLORADAY_IMAGE } from "@/lib/fixtures/floraday";
-import type { Annotation, InvalidAnnotation } from "@/lib/types";
+import type { Annotation, BoxPercent, InvalidAnnotation } from "@/lib/types";
 import styles from "./Workspace.module.css";
 
 // Built-in sample (a dev/test asset). It goes through the same model call as an upload.
@@ -34,6 +44,10 @@ export function Workspace() {
   const [loading, setLoading] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [exportFormat, setExportFormat] = useState<ExportFormat>("annotated");
+  const [exporting, setExporting] = useState(false);
+  const [exportNote, setExportNote] = useState<{ ok: boolean; text: string } | null>(null);
   // Bumped on every new image and request so a late response is ignored.
   const requestId = useRef(0);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -93,8 +107,97 @@ export function Workspace() {
     };
   }, []);
 
+  // Selection only counts while the annotation still exists and has a box.
+  const selected =
+    annotations.find((a) => a.id === selectedId && a.status === "found" && a.box) ?? null;
+  const hasBoxes = annotations.some((a) => a.status === "found" && a.box);
+
+  function deleteSelected() {
+    if (!selected) return;
+    setAnnotations((prev) => removeAnnotation(prev, selected.id));
+    setSelectedId(null);
+  }
+  // Latest handler for the window-level key listener below.
+  const deleteSelectedRef = useRef(deleteSelected);
+  useEffect(() => {
+    deleteSelectedRef.current = deleteSelected;
+  });
+
+  // Delete / Backspace removes the selected box, except while typing in a field.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Delete" && e.key !== "Backspace") return;
+      const t = e.target as HTMLElement | null;
+      if (t?.closest("input, textarea, select, [contenteditable]")) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      e.preventDefault();
+      deleteSelectedRef.current();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  function changeBox(id: string, box: BoxPercent) {
+    setAnnotations((prev) => setAnnotationBox(prev, id, box));
+  }
+
+  function changeText(id: string, text: { label: string; description: string }) {
+    setAnnotations((prev) => setAnnotationText(prev, id, text));
+  }
+
+  // Export always draws from the original image, never the 2x copy sent to the model.
+  async function exportBlob(): Promise<Blob> {
+    if (!imageSrc) throw new Error("No image selected.");
+    const blob = await renderExport(imageSrc, annotations, exportFormat);
+    if (!blob) throw new Error("This image is too large to export.");
+    return blob;
+  }
+
+  async function handleDownload() {
+    setExporting(true);
+    setExportNote(null);
+    try {
+      const blob = await exportBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = exportFileName(imageFile?.name ?? sampleId, exportFormat);
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    } catch (err) {
+      setExportNote({ ok: false, text: err instanceof Error ? err.message : "Export failed." });
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function handleCopy() {
+    if (typeof ClipboardItem === "undefined" || !navigator.clipboard?.write) {
+      setExportNote({ ok: false, text: "Copying images isn't supported in this browser. Use Download PNG." });
+      return;
+    }
+    setExporting(true);
+    setExportNote(null);
+    try {
+      // Passing the promise keeps the click's permission while the image is drawn (Safari).
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": exportBlob() })]);
+      setExportNote({ ok: true, text: "Copied to the clipboard." });
+    } catch (err) {
+      setExportNote({
+        ok: false,
+        text: err instanceof Error && err.message.includes("too large")
+          ? err.message
+          : "Couldn't copy the image. Use Download PNG instead.",
+      });
+    } finally {
+      setExporting(false);
+    }
+  }
+
   function clearAnnotations() {
     requestId.current += 1;
+    setSelectedId(null);
+    setExportNote(null);
     setLoading(false);
     setGenerateError(null);
     setAnnotations([]);
@@ -146,6 +249,7 @@ export function Workspace() {
     const id = ++requestId.current;
     setLoading(true);
     setGenerateError(null);
+    setSelectedId(null);
     setAnnotations([]);
     setInvalid([]);
     try {
@@ -156,9 +260,11 @@ export function Workspace() {
       }
       if (!file) throw new Error("No image selected.");
 
-      // Small screenshots are sent at 2x for more accurate boxes (lib/upscale.ts).
+      // Small screenshots are sent at 2x and very wide ones with white padding for
+      // more accurate boxes (lib/upscale.ts); padded boxes are mapped back below.
+      const prepared = await prepareImage(file);
       const form = new FormData();
-      form.set("image", await upscaleImage(file));
+      form.set("image", prepared.file);
       form.set("notes", notes);
       const res = await fetch("/api/annotate", { method: "POST", body: form });
       const body = await res.json().catch(() => null);
@@ -167,8 +273,18 @@ export function Workspace() {
         throw new Error((body as ApiError | null)?.error?.message ?? `Request failed (${res.status}).`);
       }
       // Re-validate on the client too; the route already validated.
-      const parsed = parseAnnotations(body?.annotations);
-      setAnnotations(parsed.annotations);
+      const returned = prepared.pad
+        ? mapAnnotationsFromPadded(body?.annotations, prepared.pad)
+        : body?.annotations;
+      const parsed = parseAnnotations(returned);
+      // Distance lines are snapped to the real edges in the original image (lib/refine-gap.ts).
+      let shown = parsed.annotations;
+      if (shown.some((a) => a.kind === "measure")) {
+        const pixels = await loadPixels(file);
+        if (id !== requestId.current) return;
+        if (pixels) shown = refineAnnotations(shown, pixels);
+      }
+      setAnnotations(shown);
       setInvalid([...(body?.invalid ?? []), ...parsed.invalid]);
     } catch (err) {
       if (id !== requestId.current) return;
@@ -221,11 +337,16 @@ export function Workspace() {
           )}
 
           {imageSrc ? (
-            <div className={styles.frame}>
+            <div className={styles.frame} onPointerDown={() => setSelectedId(null)}>
               {/* Plain <img>: the source is a local blob URL, which next/image can't optimize. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={imageSrc} alt="Uploaded screenshot" />
-              <AnnotationOverlay annotations={annotations} />
+              <AnnotationOverlay
+                annotations={annotations}
+                selectedId={selected?.id ?? null}
+                onSelect={setSelectedId}
+                onChangeBox={changeBox}
+              />
               {dragging && (
                 <div className={styles.dropOverlay}>Drop to replace the image.</div>
               )}
@@ -258,10 +379,77 @@ export function Workspace() {
             </div>
           )}
 
+          {imageSrc && hasBoxes && (
+            <div className={styles.editBar}>
+              <span>
+                {selected
+                  ? "Drag to move, drag a handle to resize."
+                  : "Click a box to move, resize or delete it."}
+              </span>
+              {selected && (
+                <button type="button" className={styles.link} onClick={deleteSelected}>
+                  Delete annotation
+                </button>
+              )}
+            </div>
+          )}
+
           {(annotations.length > 0 || invalid.length > 0) && (
             <h3 className={styles.listHeading}>Annotations</h3>
           )}
-          <AnnotationList annotations={annotations} invalid={invalid} />
+          <AnnotationList
+            annotations={annotations}
+            invalid={invalid}
+            selectedId={selected?.id ?? null}
+            onSelect={setSelectedId}
+            onChangeText={changeText}
+          />
+
+          {imageSrc && annotations.length > 0 && (
+            <section className={styles.exportSection} aria-label="Export">
+              <h3 className={styles.exportHeading}>Export</h3>
+              <div className={styles.exportBar}>
+                <select
+                  aria-label="Export format"
+                  value={exportFormat}
+                  onChange={(e) => {
+                    setExportFormat(e.target.value as ExportFormat);
+                    setExportNote(null);
+                  }}
+                >
+                  {EXPORT_FORMATS.map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  className={styles.secondary}
+                  onClick={handleDownload}
+                  disabled={exporting}
+                >
+                  Download PNG
+                </button>
+                <button
+                  type="button"
+                  className={styles.secondary}
+                  onClick={handleCopy}
+                  disabled={exporting}
+                >
+                  Copy
+                </button>
+              </div>
+              {exportNote && (
+                <p
+                  className={exportNote.ok ? styles.exportOk : styles.error}
+                  role={exportNote.ok ? "status" : "alert"}
+                >
+                  {exportNote.text}
+                </p>
+              )}
+            </section>
+          )}
         </section>
 
         <section className={`${styles.panel} ${styles.notesPanel}`} aria-label="Notes">

@@ -193,3 +193,57 @@
   font-size: 14px;
 }
 
+
+.editBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 20px;
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.exportSection {
+  margin-top: 24px;
+  padding: 12px 14px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+}
+
+.exportHeading {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.exportBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.exportBar select {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 8px;
+  max-width: 100%;
+}
+
+.exportBar .secondary {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.exportBar .secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.exportOk {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
