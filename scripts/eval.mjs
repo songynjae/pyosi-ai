@@ -23,7 +23,7 @@ import { requestAnnotations } from "../lib/meta-client.ts";
 import { PROMPT_VERSION } from "../lib/prompts/annotate.ts";
 import { CASES } from "../eval/cases.mjs";
 import { decodePng, encodePng, padBelow, upscale2x } from "../eval/png.mjs";
-import { THRESHOLDS, scoreRun, summarizeCase } from "../eval/score.mjs";
+import { THRESHOLDS, caseVerdict, scoreRun, summarizeCase } from "../eval/score.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const argv = process.argv.slice(2);
@@ -133,7 +133,7 @@ for (const p of ready) {
 
 const pct = (v) => (v === null || v === undefined ? "-" : `${v.toFixed(1)}%`);
 console.log("");
-console.log("case  pass     entries  stable  invalid  median edge  max edge  tight  failures");
+console.log("case  pass     entries  stable  invalid  median edge  max edge  tight  case  failures");
 let totalRuns = 0;
 let totalPass = 0;
 for (const r of results) {
@@ -141,16 +141,18 @@ for (const r of results) {
   totalRuns += s.runs;
   totalPass += s.passes;
   const reasons = [...new Set(r.runs.filter((x) => x.score && !x.score.pass).flatMap((x) => x.score.problems))].slice(0, 3).join("; ");
+  const verdict = caseVerdict(s);
   console.log(
-    `${r.c.id.padEnd(5)} ${`${s.passes}/${s.runs}`.padEnd(8)} ${(s.entryRange ? s.entryRange.join("-") : "-").padEnd(8)} ${(s.stableCount * 100).toFixed(0).padStart(3)}%    ${String(s.invalid).padEnd(8)} ${pct(s.medianEdgePct).padEnd(12)} ${pct(s.maxEdgePct).padEnd(9)} ${(s.tightShare === null ? "-" : (s.tightShare * 100).toFixed(0) + "%").padEnd(6)} ${reasons || (s.failedRequests ? `${s.failedRequests} request(s) failed` : "")}`,
+    `${r.c.id.padEnd(5)} ${`${s.passes}/${s.runs}`.padEnd(8)} ${(s.entryRange ? s.entryRange.join("-") : "-").padEnd(8)} ${(s.stableCount * 100).toFixed(0).padStart(3)}%    ${String(s.invalid).padEnd(8)} ${pct(s.medianEdgePct).padEnd(12)} ${pct(s.maxEdgePct).padEnd(9)} ${(s.tightShare === null ? "-" : (s.tightShare * 100).toFixed(0) + "%").padEnd(6)} ${(verdict.ok ? "OK" : "FAIL").padEnd(5)} ${reasons || (s.failedRequests ? `${s.failedRequests} request(s) failed` : "")}`,
   );
 }
 const overall = totalRuns ? totalPass / totalRuns : 0;
 console.log("");
 console.log(`Overall: ${totalPass}/${totalRuns} runs pass (${(overall * 100).toFixed(0)}%), bar ${(THRESHOLDS.overallPassRate * 100).toFixed(0)}% overall and ${(THRESHOLDS.casePassRate * 100).toFixed(0)}% per demo case (draft: docs/m5-plan.md).`);
-for (const r of results) {
-  if (r.summary.runs && r.summary.passes / r.summary.runs < THRESHOLDS.casePassRate) console.log(`  below the case bar: ${r.c.id} (${r.summary.passes}/${r.summary.runs})`);
-}
+const failing = results.filter((r) => !caseVerdict(r.summary).ok);
+console.log(`Cases meeting the bar: ${results.length - failing.length}/${results.length}. The bar per case: >= ${THRESHOLDS.casePassRate * 100}% of runs pass, median edge error <= ${THRESHOLDS.medianEdgePct}%, entry count stable in >= ${THRESHOLDS.stability * 100}% of runs.`);
+for (const r of failing) console.log(`  ${r.c.id}: ${caseVerdict(r.summary).reasons.join("; ")}`);
+console.log(overall >= THRESHOLDS.overallPassRate && failing.length === 0 ? "RESULT: bar met." : "RESULT: bar NOT met.");
 
 if (flag("--report")) {
   const sha = execSync("git rev-parse --short HEAD", { cwd: root }).toString().trim();
