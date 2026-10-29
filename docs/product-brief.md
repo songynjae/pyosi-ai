@@ -13,15 +13,17 @@ Screenshots shared in chat or tickets usually need a paragraph of explanation, a
 ## Solution
 The user uploads a screenshot and types rough notes. Pyosi produces numbered callouts and bounding boxes over the screenshot, plus a short structured explanation for each.
 
-## MVP scope (10 days)
+## MVP scope (deadline: 2026-11-04, 9 pm ET)
 In scope:
 - Screenshot upload and rough-notes input
 - AI-generated annotations (numbered callouts, bounding boxes) with short explanations
 - Preview of the annotated screenshot
+- Basic annotation editing (move, resize, delete boxes; edit label and description)
+- Distance lines for spacing and length notes (gap between elements, width or height of an element)
+- Export of the annotated screenshot as PNG (download and copy), at the original image size
 
 Out of scope for the MVP:
-- Advanced annotation editing
-- PNG export
+- Advanced annotation editing (adding boxes, moving numbered badges)
 - Accounts, history and collaboration
 
 ## Milestones

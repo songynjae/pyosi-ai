@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { capitalizeFirst } from "@/lib/format-label";
 import type { Annotation, InvalidAnnotation } from "@/lib/types";
 import styles from "./AnnotationList.module.css";
 
@@ -97,8 +98,13 @@ export function AnnotationList({
                   </div>
                 ) : (
                   <>
-                    <strong>{a.label}</strong>
+                    <strong>{capitalizeFirst(a.label)}</strong>
                     {a.description && <>: {a.description}</>}{" "}
+                    {a.kind === "measure" && (
+                      <span className={styles.kind}>
+                        {a.value ? `Distance ${a.value}` : "Distance"}
+                      </span>
+                    )}
                     <button
                       type="button"
                       className={styles.action}

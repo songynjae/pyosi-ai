@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 ## Project
-Pyosi is an AI-powered visual explanation tool. Users upload a screenshot and rough technical notes; Pyosi produces numbered callouts and bounding boxes with short explanations. It is a side project aimed at a hackathon submission, with a 10-day MVP deadline (started 2026-10-27). Primary users are engineers; this is an unvalidated assumption. See `docs/product-brief.md`.
+Pyosi is an AI-powered visual explanation tool. Users upload a screenshot and rough technical notes; Pyosi produces numbered callouts and bounding boxes with short explanations. It is a side project aimed at a hackathon submission, with a submission deadline of 2026-11-04 21:00 ET (Wednesday; started 2026-10-27). Feature freeze: Friday 2026-10-30 (the owner does not want work carried over the weekend); Saturday to Tuesday is buffer with no new features. Primary users are engineers; this is an unvalidated assumption. See `docs/product-brief.md`.
 
 ## Stack
 TypeScript, Next.js (App Router), React, Node.js runtime for API routes. npm. Plain CSS modules, no UI library.
@@ -19,9 +19,9 @@ TypeScript, Next.js (App Router), React, Node.js runtime for API routes. npm. Pl
 
 ## Architecture
 - Flow: browser -> `POST /api/annotate` (`app/api/annotate/route.ts` -> `lib/annotate-handler.ts`) -> `lib/meta-client.ts` -> Meta chat completions. The route checks image size and magic bytes (PNG/JPEG, 10 MB) and notes (1-4000 chars) before any model call. One request per Generate, no automatic retries.
-- Prompt and response schema: `lib/prompts/annotate.ts` (`PROMPT_VERSION`; bump it when the wording changes). Descriptions restate the notes directly ("This icon needs to be revised."), never "the notes say".
+- Prompt and response schema: `lib/prompts/annotate.ts` (`PROMPT_VERSION`; bump it when the wording changes). Distance notes (gap between elements, or an element's width/height) come back as `kind: "measure"` entries that name items of a top-level `groups` row/column (tight boxes for every item, located once); `lib/spacing.ts` (`resolveMeasure`) computes the gap between the named items and `lib/model-output.ts` stores it as a box plus `kind`/`axis`/`value`. Descriptions restate the notes directly ("This icon needs to be revised."), never "the notes say". A question in the notes stays a question; label and description are written in the notes' language (Korean in the polite 합니다체) and keep the notes' tone.
 - Coordinates: the model answers `[x_min, y_min, x_max, y_max]` on a 0-1000 grid (top-left origin); `lib/grounding.ts` converts to the percent boxes above, and `lib/model-output.ts` validates with `parseAnnotations()`. Pixel output was compared and was not more accurate.
-- Images under 1400 px on the long side are upscaled 2x in the browser before sending (`lib/upscale.ts`); this gave far more accurate boxes. Only the copy sent to the model is upscaled.
+- Images under 1400 px on the long side are upscaled 2x in the browser before sending (`lib/upscale.ts`); this gave far more accurate boxes. Images wider than 2.5:1 also get white padding below, up to 2:1 (`lib/pad-aspect.ts`) and the returned boxes are mapped back. Only the copy sent to the model is upscaled or padded. After the response, distance lines are snapped to the real gap in the original image's pixels (`lib/refine-gap.ts`, client side); when the image is not plain enough to be sure, the model's values are kept.
 - `MODEL_API_KEY` (in `.env.local`) is read only in the route. Use the standard model, not `-contributor` (Meta trains on contributor-mode prompts).
 - Numbered badge: boxes under 10% in either direction put it above the box (`lib/badge-placement.ts`).
 - `spikes/m2-2b/run.mjs`: the one-request grounding spike (dry run by default, `--send` makes a live request).

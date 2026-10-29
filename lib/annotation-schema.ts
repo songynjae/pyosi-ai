@@ -39,8 +39,21 @@ export const AnnotationSchema = z
     description: z.string(),
     status: z.enum(["found", "ambiguous", "not_found"]),
     box: BoxSchema.nullable(),
+    kind: z.enum(["box", "measure"]).optional(),
+    axis: z.enum(["horizontal", "vertical"]).optional(),
+    value: z.string().min(1).optional(),
   })
   .superRefine((annotation, ctx) => {
+    if (annotation.kind === "measure") {
+      if (annotation.axis === undefined) {
+        ctx.addIssue({ code: "custom", path: ["axis"], message: 'a "measure" annotation requires an axis' });
+      }
+      if (annotation.status !== "found") {
+        ctx.addIssue({ code: "custom", path: ["kind"], message: 'a "measure" annotation must be "found"' });
+      }
+    } else if (annotation.axis !== undefined || annotation.value !== undefined) {
+      ctx.addIssue({ code: "custom", path: ["kind"], message: 'axis and value are only allowed on a "measure" annotation' });
+    }
     if (annotation.status === "found" && annotation.box === null) {
       ctx.addIssue({
         code: "custom",
