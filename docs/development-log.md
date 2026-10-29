@@ -126,6 +126,9 @@ Newest entries first.
 - Meta API: the documentation search confirms `reasoning_effort` ("none" is rejected) but did not show whether `temperature` or `seed` are accepted; to be tested with one small request.
 - Next (needs approval): prompt changes for items 1 and 2 (and unique descriptions), then re-run D1, D2, D5, D7, D8 three times each (about $0.075), and one small test of `temperature: 0`.
 
+## 2026-10-29: Evaluation criteria brought in line with the M5 plan (baseline re-scored, no new requests)
+**Status: implemented on `fix/eval-criteria`, not committed.** The first harness only decided pass or fail per run (presence, kind, worst gap error, wording rules); the plan's per-case criteria (median gap-edge error at most 1.5%, same entry count in at least 4 of 5 runs) were shown in the table but did not decide anything, and "numbers and units kept as written" was not checked. I should have said so when I reported the baseline. Now `caseVerdict` applies them, `unitsNotKept` checks numbers with units, and the CLI prints a per-case OK/FAIL and a final "bar met / not met". Re-scoring the saved baseline (free): still 28 of 50 runs pass (56%); the new checks changed no run's result, but D7 now also fails the median-error rule (5.3% against 1.5%). 6 of 10 cases meet the bar (D1, D3, D4, D6, D9, D10); D2, D5, D7, D8 do not. The plan document now lists the 10 cases and how each criterion is applied.
+
 ## 2026-10-27: Milestone 2.2-C, AI annotation route and UI wiring (implemented; live accuracy issue open)
 **Status: implemented and live-tested with 8 requests; NOT committed yet, pending a decision on small-image handling (see the investigation).**
 

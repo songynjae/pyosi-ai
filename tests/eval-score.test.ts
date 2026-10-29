@@ -95,3 +95,25 @@ describe("summarizeCase", () => {
     assert.equal(s.tightShare, 3 / 7);
   });
 });
+
+describe("unitsNotKept and caseVerdict", () => {
+  it("finds numbers with a unit from the notes that the answer lost", async () => {
+    const { unitsNotKept } = await import("../eval/score.mjs");
+    const kept = [{ label: "Gap", description: "Should be at least 5 mm.", value: "5mm" }];
+    assert.deepEqual(unitsNotKept("Check it, at least 5 mm.", kept), []);
+    assert.deepEqual(unitsNotKept("Check it, at least 5 mm.", [{ label: "Gap", description: "Check it." }]), ["5mm"]);
+    assert.deepEqual(unitsNotKept("Is it 24px or 1.5 rem?", [{ description: "Is it 24 PX?" }]), ["1.5rem"]);
+    assert.deepEqual(unitsNotKept("No numbers here.", []), []);
+  });
+
+  it("a case meets the bar only with enough passing runs, small median error and a stable count", async () => {
+    const { caseVerdict } = await import("../eval/score.mjs");
+    const good = { runs: 5, passes: 5, medianEdgePct: 0.5, stableCount: 1 };
+    assert.equal(caseVerdict(good).ok, true);
+    assert.equal(caseVerdict({ ...good, passes: 3 }).ok, false);
+    assert.equal(caseVerdict({ ...good, medianEdgePct: 2.4 }).ok, false);
+    assert.equal(caseVerdict({ ...good, stableCount: 0.6 }).ok, false);
+    assert.equal(caseVerdict({ ...good, medianEdgePct: null }).ok, true);
+    assert.equal(caseVerdict({ runs: 0, passes: 0, medianEdgePct: null, stableCount: 0 }).ok, false);
+  });
+});

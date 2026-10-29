@@ -10,6 +10,10 @@ export const THRESHOLDS = {
   crossPct: 3,
   /** "Tight" gaps for the report: both ends within this much. */
   tightPct: 1.5,
+  /** Per case: the median gap-edge error must be within this much (docs/m5-plan.md, criterion 3). */
+  medianEdgePct: 1.5,
+  /** Per case: at least this share of the runs must give the same number of entries (criterion 5). */
+  stability: 0.8,
   /** Share of runs that must pass: overall, and for each case shown in the demo. */
   overallPassRate: 0.9,
   casePassRate: 0.8,
@@ -93,6 +97,9 @@ export function scoreRun({ annotations, invalidCount, expect, notes, size }) {
   if (extra > 0) problems.push(`${extra} extra distance line(s)`);
   if (invalidCount > 0) problems.push(`${invalidCount} invalid entr${invalidCount === 1 ? "y" : "ies"}`);
 
+  const lostUnits = unitsNotKept(notes, annotations);
+  if (lostUnits.length > 0) problems.push(`number and unit from the notes not kept: ${lostUnits.join(", ")}`);
+
   const descriptions = annotations.map((a) => (a.description || "").trim().toLowerCase()).filter(Boolean);
   const duplicates = descriptions.length - new Set(descriptions).size;
   if (duplicates > 0) problems.push("repeated description");
@@ -109,6 +116,21 @@ export function scoreRun({ annotations, invalidCount, expect, notes, size }) {
     gaps,
     problems,
   };
+}
+
+/**
+ * Numbers with a unit in the notes ("5 mm", "24px") that appear nowhere in the labels, descriptions or
+ * values (criterion 4: numbers and units are kept as written). Spaces and case are ignored.
+ */
+export function unitsNotKept(notes, annotations) {
+  const wanted = [...notes.matchAll(/(\d+(?:\.\d+)?)\s?(mm|cm|px|pt|rem|em|%)/gi)].map((m) => `${m[1]}${m[2].toLowerCase()}`);
+  if (wanted.length === 0) return [];
+  const text = annotations
+    .map((a) => `${a.label ?? ""} ${a.description ?? ""} ${a.value ?? ""}`)
+    .join(" ")
+    .toLowerCase()
+    .replace(/\s+/g, "");
+  return wanted.filter((w) => !text.includes(w));
 }
 
 /** Summary over the runs of one case. */
@@ -130,4 +152,22 @@ export function summarizeCase(runs) {
     maxEdgePct: edges.length ? Math.max(...edges) : null,
     tightShare: edges.length ? edges.filter((e) => e <= THRESHOLDS.tightPct).length / edges.length : null,
   };
+}
+
+/**
+ * Whether a case meets the draft bar of docs/m5-plan.md: enough runs pass, the median gap-edge error is
+ * small and the number of entries is stable. Returns { ok, reasons }.
+ */
+export function caseVerdict(summary) {
+  const reasons = [];
+  if (summary.runs === 0) return { ok: false, reasons: ["no runs"] };
+  const rate = summary.passes / summary.runs;
+  if (rate < THRESHOLDS.casePassRate) reasons.push(`${summary.passes}/${summary.runs} runs pass (needs ${THRESHOLDS.casePassRate * 100}%)`);
+  if (summary.medianEdgePct !== null && summary.medianEdgePct > THRESHOLDS.medianEdgePct) {
+    reasons.push(`median edge error ${summary.medianEdgePct.toFixed(1)}% (needs <= ${THRESHOLDS.medianEdgePct}%)`);
+  }
+  if (summary.stableCount < THRESHOLDS.stability) {
+    reasons.push(`entry count stable in ${(summary.stableCount * 100).toFixed(0)}% of runs (needs ${THRESHOLDS.stability * 100}%)`);
+  }
+  return { ok: reasons.length === 0, reasons };
 }
