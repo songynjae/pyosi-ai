@@ -2,6 +2,8 @@
 
 Written 2026-10-28 after a user test with Korean notes on a column of icons failed (two measurement entries came back invalid). It audits how Pyosi has been validated so far and proposes a structured procedure. Nothing here is approved or implemented yet, except where marked.
 
+> **MVP scope decision (2026-10-29): English notes only, no voice input.** The Korean cases (C02, C03) are moved to "after the MVP"; their English counterparts (C01, C04) stay.
+
 ## 1. Levels of verification
 | Level | What it proves | How | Cost |
 |---|---|---|---|
