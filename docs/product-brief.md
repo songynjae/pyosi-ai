@@ -28,9 +28,11 @@ Out of scope for the MVP:
 
 ## Milestones
 1. **Scaffold + mock UI (done):** single page, upload, notes, Generate, preview with mock annotations.
-2. **AI integration:** a server-side API route that sends the screenshot and notes to the model and returns annotations (provider to be decided).
-3. **Basic editing:** adjust, add and remove annotations.
-4. **Export + polish:** PNG export, error handling, hackathon demo.
+2. **AI integration (done):** a server-side API route that sends the screenshot and notes to the model (Meta Muse Spark) and returns annotations.
+3. **Basic editing (done):** move, resize and delete boxes; edit label and description.
+4. **Export + accuracy (done):** PNG export (download and copy), distance lines for spacing notes, pixel snapping, padding of very wide images. Plan: `docs/m5-plan.md`.
+5. **Quality evaluation and stabilization:** results that are consistent enough to demo, measured on a fixed set of demo cases with repeated runs (`docs/m5-plan.md`, `docs/test-plan.md`).
+6. **Deploy and submit:** protect the public API route, tell users their screenshot and notes go to a model API, deploy, README, demo video and submission. Feature freeze: Friday 2026-10-30; deadline 2026-11-04 21:00 ET.
 
 ## Open questions
 - Which model/provider handles vision input?
