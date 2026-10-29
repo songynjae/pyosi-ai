@@ -126,6 +126,37 @@ Newest entries first.
 - Meta API: the documentation search confirms `reasoning_effort` ("none" is rejected) but did not show whether `temperature` or `seed` are accepted; to be tested with one small request.
 - Next (needs approval): prompt changes for items 1 and 2 (and unique descriptions), then re-run D1, D2, D5, D7, D8 three times each (about $0.075), and one small test of `temperature: 0`.
 
+## 2026-10-29: Test plan v2 and browser checks of editing and export (no code change, no cost)
+**Status: `docs/test-plan.md` rewritten (draft, awaiting the owner's approval of areas and case sources); the editing and export checks were run by Claude in the browser. One finding, nothing fixed.**
+- Why: the owner expected the tests to validate the whole annotation app; in practice 8 of 10 live cases were about distance lines and only one was a plain box note. The plan now names areas A to G (target identification, ambiguous/missing, screen variety, wording, consistency, distance lines, editing/export), lists case sources (existing D1 to D10, the ContextMark cases, new screenshots with ground truth read from the page) and a tuning / held-out split.
+- Browser checks (stubbed model answer): move, resize, delete (key and button), text edit, badge overlap, export size and content, image sizes, narrow window all pass; error texts are understandable but technical; Copy was checked for data only. Details in `docs/test-plan.md` section 8.
+- **Finding:** the pixel snapping draws the Floraday card-to-button gap as 986 to 1050 px instead of the true 978 to 1023 px (the end enters the button), because the button's light grey outline is below `INK_DIFF`. The harness passes D3 anyway (its limits are about 82 px and 31 px here), so the thresholds need calibration against what a person sees as wrong. Fixing it changes visible behaviour: needs approval and a measurement on the distance cases.
+- Follow-up (offline, free): six snapping variants (move limit 12/8 px, ink threshold 20/15, faint-line rule, faint-line + limit) compared on 50 saved gaps and on shifted true gaps. None beat the current code on model answers (median 1 px, worst 76 px); the limits and thresholds lose the gains on D1, D2, D6, D9. The Floraday overshoot only appears when the model's value is already accurate. Snapping unchanged; recorded as a known limit. Details in `docs/test-plan.md` section 8.
+- Open: owner to approve the plan; ContextMark case conversion; a decision on `feat/gap-to-next` (v14 not merged, not pushed).
+
+## 2026-10-29: M5 result: v14 full re-measurement against v10 and v11 (30 live requests, about $0.15; total spent about $0.70)
+**Status: M5 measurements are done. The `gap_to_next` structure (v14, branch `feat/gap-to-next`, committed `4c29de4`, not pushed, not merged) removes the invalid entries but is not better than v11/v12 overall, so it is not merged. `main` stays on v12.**
+
+| case | v10 (5 runs) | v11 (3 runs) | v14 (3 runs) |
+|---|---|---|---|
+| D1 toolbar | 4/5 | 3/3 | **1/3** (the Relaunch button missing from the list in 2 runs, so no last gap) |
+| D2 icon list | 0/5 | 1/3 | 0/3 (Audio box 20 to 30 px too high; one run also measured to the Meta logo above the list) |
+| D3 Floraday gap | 5/5 | 3/3 | 3/3 |
+| D4 Floraday box | 5/5 | 3/3 | 3/3 |
+| D5 missing element | 0/5 | 3/3 | 2/3 (one run again measured to another button) |
+| D6 synthetic row | 4/5 | 3/3 | 3/3 |
+| D7 8-item list | 0/5 | 0/3 | 0/3 (median edge error 6.5%) |
+| D8 box plus gap | 0/5 | 3/3 | 3/3 (entry count 2 to 4) |
+| D9 PCB drawing | 5/5 | 2/3 | 3/3 |
+| D10 mounting plate | 5/5 | 3/3 | 3/3 |
+| **all runs** | **28/50 (56%)** | **24/30 (80%)** | **21/30 (70%)** |
+
+- Invalid distance entries (an empty pointer): v10 0 of 119, v11 2 of 59, v12 1 of 21, v14 structure 0 of about 100 gaps. That problem is solved by the structure.
+- What v14 costs: in D1, 2 of 3 runs left the last item (the Relaunch pill) out of the list, so its gap never appears (v11 and v12: 0 of 6 runs). Possibly because the last item carries a null gap and invites leaving it out; not tested. A missing gap is silent, an invalid entry is visible, so this is the worse failure for a user.
+- 21 against 24 runs of 30 is within the noise of such small samples; the per-case rule (80% of runs, stable entry count, median error) is met by 5 of 10 cases with v14 (D3, D4, D6, D9, D10), 6 of 10 with v11.
+- **What is reliable today (3 of 3 runs in both v11 and v14):** D3 (card and button), D4 (box note), D6 (row of squares), D10 (mounting plate); also D8 and D9 with small variation in the number of entries. **Not reliable:** D7 (many items in a list), D2 (small icon box position), D1 (completeness of the last item).
+- Not yet tried: asking explicitly that the last item stays in the list, a second measurement of v12 with the same 30-run protocol (v12 was only run on 3 cases), `strict` response format.
+
 ## 2026-10-29: Prompt v12 ("between" as a list) did not remove the empty-between failures (9 live requests, about $0.04; uncommitted)
 **Status: v12 on branch `feat/prompt-v11` (uncommitted); verification D1, D2, D9 x 3 runs. Inconclusive for the fix, no regression seen.**
 
