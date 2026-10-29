@@ -288,3 +288,29 @@ describe("badge placement for a distance line", () => {
     assert.equal(badgePlacement({ x: 10, y: 40, width: 50, height: 30 }), "corner");
   });
 });
+
+describe("between as a list (prompt v12)", () => {
+  const entry = (extra: Record<string, unknown>) => ({
+    label: "Gap", description: "d", status: "found", box_2d: null, kind: "measure", axis: null, value: null, group: "g1", ...extra,
+  });
+  const groups = [{ id: "g1", axis: "horizontal", items: [{ label: "A", box_2d: [100, 200, 200, 400] }, { label: "B", box_2d: [400, 250, 500, 550] }] }];
+
+  it("an empty list on a distance entry is reported with the reason, never repaired", () => {
+    const res = parseModelOutput(JSON.stringify({ annotations: [entry({ between: [] })], groups }));
+    assert.ok(res.ok);
+    if (res.ok) {
+      assert.equal(res.annotations.length, 0);
+      assert.match(res.invalid[0].issues[0], /needs exactly two item names, got 0/);
+    }
+  });
+
+  it("an empty list on a plain box entry is fine and the distance entry next to it still resolves", () => {
+    const box = { label: "Card", description: "d", status: "found", kind: "box", axis: null, value: null, group: null, between: [], box_2d: [100, 100, 300, 200] };
+    const res = parseModelOutput(JSON.stringify({ annotations: [box, entry({ between: ["A", "B"] })], groups }));
+    assert.ok(res.ok);
+    if (res.ok) {
+      assert.equal(res.invalid.length, 0);
+      assert.deepEqual(res.annotations.map((a) => a.kind ?? "box"), ["box", "measure"]);
+    }
+  });
+});

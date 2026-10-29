@@ -126,6 +126,15 @@ Newest entries first.
 - Meta API: the documentation search confirms `reasoning_effort` ("none" is rejected) but did not show whether `temperature` or `seed` are accepted; to be tested with one small request.
 - Next (needs approval): prompt changes for items 1 and 2 (and unique descriptions), then re-run D1, D2, D5, D7, D8 three times each (about $0.075), and one small test of `temperature: 0`.
 
+## 2026-10-29: Prompt v12 ("between" as a list) did not remove the empty-between failures (9 live requests, about $0.04; uncommitted)
+**Status: v12 on branch `feat/prompt-v11` (uncommitted); verification D1, D2, D9 x 3 runs. Inconclusive for the fix, no regression seen.**
+
+- v12: `between` is always a list in the response schema (two labels for a distance entry, an empty list otherwise; no null) and the prompt says it is required. Verified on D1 3/3 (v11: 3/3), D9 3/3 (v11: 2/3), D2 1/3 (v11: 1/3).
+- **The failure is still there:** 1 of 21 distance entries had `between: []` (D2 run 3; v11: 2 of 59; v10: 0 of 119). With so few entries the two rates (about 5% and 3%) cannot be told apart; the schema change did not remove it, because the schema is guidance (`strict: false`) and the model can still choose an empty list.
+- D2 in detail: the two gap lines are exact along the line (edge error 0.0 to 0.2%) when they come back; in 2 of 3 runs they also span the label text beside the icons (cross position about 10% of the long side off the icon column; the same ambiguity as D7, where the row includes its labels); the box for the Audio icon is 20 to 30 px too high in every run.
+- Options not tried (need approval): (a) a fallback that reads the two item names from the entry's own label when `between` is empty (changes the "never repair" rule); (b) a structure where the gap hangs on the item before it (`gap_to_next`), so there is nothing to point at; (c) `strict: true` in the response format (untested with this API).
+- Budget: about $0.445 used.
+
 ## 2026-10-29: Prompt v11, regression check and full result (31 live requests in total, about $0.155; not committed)
 **Status: v11 measured on all 10 cases x 3 runs. Better than v10 overall, but one new failure mode and two cases below the bar; not merged.**
 

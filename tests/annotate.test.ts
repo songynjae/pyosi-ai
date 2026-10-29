@@ -102,7 +102,7 @@ describe("handleAnnotate", () => {
     assert.equal(res.status, 200);
     const body = await res.json();
     assert.equal(body.annotations.length, 1);
-    assert.equal(body.promptVersion, "annotate.v11");
+    assert.equal(body.promptVersion, "annotate.v12");
     assert.equal(f.calls.length, 1);
     const headers = f.calls[0].init.headers as Record<string, string>;
     assert.equal(headers.Authorization, `Bearer ${FAKE_KEY}`);

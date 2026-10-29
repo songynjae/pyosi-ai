@@ -52,3 +52,12 @@ Overall 24/30 runs pass. Raw responses: .eval/2026-10-29-annotate.v11 (git-ignor
 | D8 | 3/3 | 2-2 | 0 | 0.2% | 0.2% |
 | D9 | 2/3 | 2-3 | 1 | 0.0% | 0.0% |
 | D10 | 3/3 | 2-2 | 0 | 0.1% | 0.1% |
+
+## 2026-10-29, prompt annotate.v12, commit 4fc3b6d
+Overall 7/9 runs pass. Raw responses: .eval/2026-10-29-annotate.v12 (git-ignored).
+
+| case | pass | entries | invalid | median edge | max edge |
+|---|---|---|---|---|---|
+| D1 | 3/3 | 4-4 | 0 | 0.1% | 1.5% |
+| D2 | 1/3 | 2-3 | 1 | 0.2% | 0.2% |
+| D9 | 3/3 | 3-3 | 0 | 0.0% | 0.0% |
