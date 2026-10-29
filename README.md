@@ -38,6 +38,38 @@ Open http://localhost:3000.
 | `npm run lint` | Run ESLint |
 | `npm test` | Run unit tests (Node's built-in test runner) |
 
+## Data handling
+
+*Snapshot of 2026-10-29, written from reading the code at commit `1181589`. It describes what the app does today; it is not a security review (that is still to do, see "Open items").*
+
+**What the app handles:** a screenshot (PNG or JPEG, up to 10 MB), rough notes (up to 4,000 characters) and the annotations the model returns.
+
+**Where the data goes**
+
+1. **Only in the browser:** showing the screenshot, upscaling or padding the copy that is sent, snapping distance lines to the real edges (reads the image's pixels), editing, and PNG export (drawn in the browser; saved or copied only when the user clicks Download or Copy). None of this uploads anything.
+2. **On Generate:** the image (the original, or a 2x / padded PNG copy of it) and the notes are sent to Pyosi's own route `POST /api/annotate`. The route checks size and file type (by magic bytes) and the notes length, then forwards them to the Meta model API (`https://api.meta.ai/v1/chat/completions`, model `muse-spark-1.3`, standard mode; the `-contributor` model, which trains on prompts, is not used). One request per Generate, no automatic retries, 60 s timeout.
+3. **The answer** comes back to the browser as annotations. Error details from the model API are not forwarded to the browser.
+
+**What Pyosi stores:** nothing. In the app code there is no database, no file writing, no server-side logging, no cookies, no `localStorage` / `sessionStorage` / IndexedDB and no analytics. Everything lives in memory in the open page, so reloading the page clears the image, notes and annotations.
+
+**Secrets:** the model API key (`MODEL_API_KEY`) is read only on the server, from the environment (`.env.local` locally, which is git-ignored). It is never sent to the browser or included in a response; tests check this with a fake model API.
+
+**Who else sees the data**
+
+- **Meta (model API):** receives the screenshot and the notes of every Generate. How long Meta keeps them is set by Meta's terms, which have not been reviewed yet.
+- **The hosting platform, once deployed:** may keep request metadata or logs (not decided; the app is not deployed yet).
+- **Voice input** is not part of the MVP and is not implemented, so no audio is captured or sent anywhere. (If it is added later with the browser's speech recognition, the browser vendor, for example Google in Chrome, would process the audio and Pyosi would not receive or store it.)
+
+**Development:** tests never call the network (the model API is replaced by a fake `fetch`). Live requests cost money and are made only when approved. Test screenshots and raw model responses from experiments are kept outside the repository, on the developer's machine. The only screenshot in the repository is the Floraday sample (`public/fixtures/floraday.png`), cleared for publishing.
+
+**Open items for the security check**
+
+- **No access control or rate limiting on `POST /api/annotate`.** Anyone who can reach a deployed URL can send requests that are paid for with the API key; a usage limit or other protection is needed before a public deployment.
+- Meta's retention and training terms for standard-mode requests, to be confirmed from Meta's documentation.
+- Hosting platform logging, once a platform is chosen.
+- Prompt injection: the notes are fenced as data in the prompt and the model's answer is validated, but this is not a guarantee.
+- User notice: the screen does not yet tell users that their screenshot and notes are sent to a model API.
+
 ## Project structure
 
 ```
