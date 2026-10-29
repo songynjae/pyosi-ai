@@ -110,6 +110,22 @@ Newest entries first.
 - Not verified: touch devices, Backspace while the notes box is focused (guarded in code, not exercised), very small boxes, overlapping boxes, feel of the drag.
 - Fixed (user-approved): boxes with the corner badge get no top-left resize handle, so the number stays visible; that corner is reached with the top and left handles. Small boxes (badge above or below) keep all four corner handles.
 
+## 2026-10-29: M5 baseline measurement (prompt v10, current build; harness in `scripts/eval.mjs`)
+**Status: harness and 10 demo cases built; baseline run done (50 live requests, about $0.25); fixes not started. Not committed yet.**
+
+- Harness: `npm run eval` (dry run by default; `--send` for live requests; `--replay <dir>` scores saved raw responses for free). Cases in `eval/cases.mjs` with truth measured from pixels; private images (toolbar, Meta sidebar) stay in `.eval-private/` (git-ignored); raw responses go to `.eval/<date>-<prompt>/`. The harness reuses the app's own code (request, parse, mapping back, validation, pixel snapping). Checked offline first with replayed responses (synthetic answers shifted by 10 to 14 px were snapped back to 0%).
+- **Baseline: 28 of 50 runs pass (56%)** against the draft bar (90% overall, 80% per demo case). Per case (5 runs each): D1 toolbar 4/5, D2 icon list 0/5, D3 Floraday gap 5/5, D4 Floraday box 5/5, D5 non-existent element 0/5, D6 synthetic row 4/5, D7 synthetic list of 8 items 0/5, D8 box plus gap 0/5, D9 PCB drawing 5/5, D10 mounting plate 5/5. No run produced an invalid entry.
+- **What the failures are (from the raw responses):**
+  1. D5 (5/5 fail): for "the Refresh button is too far from the title" (no such button) the model measured to the existing "Choose Another Sky" button instead of answering not found. A false claim, in every run.
+  2. D8 (5/5 fail): "the photo is too large" came back as a distance line (the photo's height) instead of a box; the v9 wording ("too large/narrow/tall...") makes size notes become distance lines. The owner decided lengths are out of scope; only the gap should be a line.
+  3. D7 (5/5 fail): with 8 items in a tall list the model located only 2 to 4 of the 7 gaps correctly (others put on an item or shifted by 40 to 60 px); the snapping limit (24 px) cannot repair that. A 5% cross error was partly my truth definition (the row also holds label bars); fixed in the case (`crossRange`).
+  4. D2 (5/5 fail): the plain box for the Audio icon is about 22 px too high (box accuracy of the model, not snapped); repeated identical descriptions in some runs; one gap about 5% off.
+  5. D1 (1/5) and D6 (1/5): one run left out the last gap, one put a gap on the next square.
+- **Passing:** the two hardware drawings (D9, D10), the Floraday cases (D3, D4) and most of the toolbar and synthetic row: the distance lines are exact whenever the model puts the marker near the right gap and the pixel snapping applies.
+- **Tried and reverted (replayed on the saved baseline, no cost):** removing the "marker spans an element" guard (no change) and taking the most common colour instead of the median as background (no gain, D9 got worse). Neither is kept; the committed snapping is unchanged. Found while doing so: the median background estimate can be pulled towards a large pill-shaped item, which is why the toolbar's last gap (next to the Relaunch pill) is sometimes not snapped.
+- Meta API: the documentation search confirms `reasoning_effort` ("none" is rejected) but did not show whether `temperature` or `seed` are accepted; to be tested with one small request.
+- Next (needs approval): prompt changes for items 1 and 2 (and unique descriptions), then re-run D1, D2, D5, D7, D8 three times each (about $0.075), and one small test of `temperature: 0`.
+
 ## 2026-10-27: Milestone 2.2-C, AI annotation route and UI wiring (implemented; live accuracy issue open)
 **Status: implemented and live-tested with 8 requests; NOT committed yet, pending a decision on small-image handling (see the investigation).**
 

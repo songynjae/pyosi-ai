@@ -49,3 +49,7 @@ spikes/m2-2b/results/
 
 # Personal Claude instructions (not committed)
 CLAUDE.local.md
+
+# Evaluation: raw model responses and private test images (may contain personal data)
+.eval/
+.eval-private/
