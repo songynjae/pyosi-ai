@@ -118,6 +118,21 @@ Newest entries first.
 - Deployment check at the end of the day (`https://pyosi.netlify.app`, after PRs #14 to #16): page 200; no code 401; the judges code with an empty form 400; a 4.3 MB upload refused with the app's 413 message; one real Generate on the Floraday screenshot answered in about 4.5 s (annotate.v12, one entry). Live requests of the day: 42 (about $0.21 of the $1 budget).
 - Left for the owner: the evening decisions listed in the summary of this session (making the repository public on Monday, the video, the form fields marked [owner], the beta, the Netlify badge, the author address in the history).
 
+## 2026-10-30: Message-style notes (full messages with a greeting) and the new narrative (15 live requests, about $0.07; the day's total 69 requests, about $0.35)
+**Status: measured; no code, prompt or app change. Docs rewritten around the owner's narrative: *Pyosi identifies the part of a screenshot you are talking about, and marks it* (`docs/video-script.md`, `docs/submission-answers.md`, the README opener).** Why: the owner's reading of the interviews is that people usually send the screenshot and a message separately, so the value is to find which part the message refers to, not to write annotations; the existing measurements used short rough notes only. Cases in `eval/cases-message.mjs` (`npm run eval -- --set message`), prompt v12, 3 runs each; raw answers `.eval/2026-10-30-message` (git-ignored).
+
+| case | message | result |
+|---|---|---|
+| M1 Floraday | greeting, the lily card and the button, "before Monday" | 2 completed runs (the third: HTTP 502), both targets found, median IoU 0.99 |
+| M2 Floraday | one button among remarks that need no mark ("sign-in worked well") | 3/3, only the button marked, 0.91 |
+| M3 purchase order | date and unit price of line 2 | 3 runs, both found, nothing extra, 0.84 |
+| M4 email | the quantity and the date mentioned | 3 runs, both found, loose boxes on 18 px phrases, 0.72 (67% of the boxes reach 0.7) |
+| M5 chat | "the message where she confirms the price" plus "the discount she promised" (not in the chat) | 3 runs, message found (0.98), the discount reported "not found" every time, never boxed |
+
+- Strict harness verdict 6 of 15, but all 9 failures are one wording rule: the message ends with a polite question ("Could you check both before Monday?") and the descriptions restate it as a need ("needs to be checked before Monday"); the rule counts that as a question that was not kept. The harness was not changed after seeing the answers; the position of the marks is the question of this set and it was right in all 14 completed runs. Whether such a request should stay a question is a wording decision for the owner.
+- Descriptions kept the message's own points ("needs confirmation today", "higher than agreed"), and for M5 read the price from the screenshot ("USD 12.40 per unit").
+- Limits: five cases on three screens, English only, 3 runs, fake data; the 502 is a model API error (about 1 in 15 here, 3 timeouts in 60 earlier).
+
 ## 2026-10-30: Text-heavy screens: small text areas (a date, a price, a quantity) (12 live requests, about $0.06; the day's total 54 requests, about $0.27)
 **Status: measured; no code, prompt or app change. Why:** the sales professional of the user interviews marks dates, prices, quantities and earlier agreements, and none of the measured cases had small areas of text; the interviewees' real work screens cannot leave their companies, so the screens are mock-ups with fake data (`eval/fixtures/text/*.html`, rendered by `scripts/make-text-fixtures.mjs`; the truth boxes are read from the page: `eval/fixtures/text/truth.mjs`). Cases in `eval/cases-text.mjs`, run with `npm run eval -- --set text`; 3 runs each, prompt v12; raw answers `.eval/2026-10-30-text` (git-ignored).
 
