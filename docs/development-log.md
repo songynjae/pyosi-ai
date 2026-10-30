@@ -482,3 +482,8 @@ Driven in the browser (file picked, notes typed, Generate clicked); the page rec
 ### Decisions
 - No Tailwind or UI library: plain CSS modules keep dependencies minimal.
 - Annotation boxes use percent coordinates, which keeps the overlay independent of image resolution.
+
+## 2026-10-30: Netlify builds stopped; the header sentence follows the narrative
+- Netlify emailed that 50% of the 300 monthly credits was used. The likely cause (not confirmed: the usage page is the owner's) is the two days of PRs, about 40 builds counting previews and production. The owner set **Build status: Stopped builds**. The live site keeps serving the last deploy (checked: page 200, `/api/annotate` without a code 401), which is the code of PR #21; later changes are docs or wait for the next deploy.
+- **To deploy again** (a code fix, or an environment variable change): set Build status back to **Active builds**, let one build run, then stop builds again. In the stopped state the page says new deploys go through the CLI or API only, so there is no Trigger deploy button to rely on.
+- The header sentence and the page description said "Turn screenshots and rough notes into clear visual explanations", the first idea of the product. They now say "Pyosi finds the part of a screenshot you're talking about, and marks it." (owner chose option A on 2026-10-30). Text only; not on the live site until the next deploy.

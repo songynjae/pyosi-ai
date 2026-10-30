@@ -288,7 +288,7 @@ export function Workspace() {
           Pyosi
         </h1>
         <p>
-          Turn screenshots and rough notes into clear visual explanations.
+          Pyosi finds the part of a screenshot you&apos;re talking about, and marks it.
         </p>
         <ol className={styles.steps}>
           <li>Add a screenshot</li>

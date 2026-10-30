@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Pyosi",
   description:
-    "Turn screenshots and rough technical notes into clear, structured visual explanations.",
+    "Pyosi finds the part of a screenshot you're talking about, and marks it.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
