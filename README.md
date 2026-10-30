@@ -42,7 +42,7 @@ Open http://localhost:3000.
 
 *Snapshot of 2026-10-29, written from reading the code at commit `1181589`. It describes what the app does today; it is not a security review (that is still to do, see "Open items").*
 
-**What the app handles:** a screenshot (PNG or JPEG, up to 4 MB), rough notes (up to 4,000 characters) and the annotations the model returns.
+**What the app handles:** a screenshot (PNG or JPEG, up to 4 MB), rough notes (up to 4,000 characters) and the annotations the model returns. Notes in other languages are accepted and the model answers in the language of the notes (a few unit tests and prompt rules cover this), but the evaluation harness and the measured results cover English notes only.
 
 **Where the data goes**
 

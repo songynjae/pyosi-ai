@@ -1,0 +1,14 @@
+# Netlify settings for the Pyosi deployment (docs/m6-plan.md, section 2).
+# Netlify detects Next.js and installs its Next.js adapter on its own; this file only pins Node.
+# Environment variables (set in the Netlify site settings, never in this file):
+#   MODEL_API_KEY                 the Meta model API key (the owner enters it)
+#   ACCESS_CODES                  name:code,name:code (a code per tester; without it the route refuses everything)
+#   RATE_LIMIT_TOTAL_PER_DAY      for example 200
+#   RATE_LIMIT_PER_CODE_PER_HOUR  optional, default 30
+#   MODEL_TIMEOUT_MS              50000 (Netlify functions stop at 60 s)
+[build]
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"
