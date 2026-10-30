@@ -277,7 +277,7 @@ export async function renderExport(
       // Badges last so no box outline is drawn over a number.
       const centers = found.map(({ a, index }) => {
         const box = a.box as BoxPercent;
-        return { a, index, ...badgeCenter(pixelBox(box, size), badgePlacement(box, a.kind, a.axis), m, size) };
+        return { a, index, ...badgeCenter(pixelBox(box, size), badgePlacement(box, a.kind, a.axis, size.height / size.width), m, size) };
       });
       const offsets = separateBadges(
         centers.map((c) => ({ id: c.a.id, x: c.x, y: c.y })),
