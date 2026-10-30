@@ -11,6 +11,8 @@ type Deps = {
   guard?: (request: Request) => Response | null;
   /** Model request timeout in ms; the default is meta-client's. A host with a shorter function limit sets a shorter one. */
   timeoutMs?: number;
+  /** Total request cap (lib/budget.ts): called just before the model request; returns the error response, or null to go on. */
+  budget?: () => Promise<Response | null>;
 };
 
 function error(status: number, code: string, message: string) {
@@ -22,7 +24,7 @@ function error(status: number, code: string, message: string) {
  * Success: { annotations, invalid, promptVersion, usage, latencyMs }.
  * Failure: { error: { code, message } }. The API key is never included.
  */
-export async function handleAnnotate(request: Request, { apiKey, fetchImpl, guard, timeoutMs }: Deps) {
+export async function handleAnnotate(request: Request, { apiKey, fetchImpl, guard, timeoutMs, budget }: Deps) {
   const denied = guard?.(request);
   if (denied) return denied;
 
@@ -58,6 +60,10 @@ export async function handleAnnotate(request: Request, { apiKey, fetchImpl, guar
   if (!apiKey) {
     return error(503, "not_configured", "The model API key is not configured on the server.");
   }
+
+  // The last check before the paid call, so that requests refused earlier do not use the budget.
+  const overBudget = await budget?.();
+  if (overBudget) return overBudget;
 
   const result = await requestAnnotations({
     apiKey,

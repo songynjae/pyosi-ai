@@ -6,6 +6,8 @@
 #   RATE_LIMIT_TOTAL_PER_DAY      for example 200
 #   RATE_LIMIT_PER_CODE_PER_HOUR  optional, default 30
 #   MODEL_TIMEOUT_MS              50000 (Netlify functions stop at 60 s)
+#   TOTAL_REQUEST_CAP             hard cap on all model requests, counted in a Netlify Blobs store (for example 700); unset = no cap
+#   BUDGET_EPOCH                  optional; change it to start a new count
 [build]
   command = "npm run build"
 
