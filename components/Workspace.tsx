@@ -18,25 +18,14 @@ import { refineAnnotations } from "@/lib/refine-gap";
 import { prepareImage } from "@/lib/upscale";
 import { pickDroppedFile, pickPastedImage } from "@/lib/dropped-file";
 import { validateImageFile } from "@/lib/image-validation";
-import { FLORADAY_IMAGE } from "@/lib/fixtures/floraday";
 import type { Annotation, BoxPercent, InvalidAnnotation } from "@/lib/types";
 import styles from "./Workspace.module.css";
-
-// Built-in sample (a dev/test asset). It goes through the same model call as an upload.
-const SAMPLES = {
-  floraday: {
-    label: "or use the Floraday sample",
-    src: FLORADAY_IMAGE.src,
-  },
-};
-type SampleId = keyof typeof SAMPLES;
 
 type ApiError = { error?: { message?: string } };
 
 export function Workspace() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
-  const [sampleId, setSampleId] = useState<SampleId | null>(null);
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [invalid, setInvalid] = useState<InvalidAnnotation[]>([]);
   const [imageError, setImageError] = useState<string | null>(null);
@@ -161,7 +150,7 @@ export function Workspace() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = exportFileName(imageFile?.name ?? sampleId, exportFormat);
+      link.download = exportFileName(imageFile?.name ?? null, exportFormat);
       link.click();
       setTimeout(() => URL.revokeObjectURL(url), 10_000);
     } catch (err) {
@@ -214,19 +203,8 @@ export function Workspace() {
     }
     setImageError(null);
     if (imageSrc) setNotes(""); // replacing an image: the old notes no longer fit
-    setSampleId(null);
     setImageFile(file);
     setImageSrc(URL.createObjectURL(file));
-    clearAnnotations();
-  }
-
-  function selectSample(id: SampleId) {
-    if (fileInput.current) fileInput.current.value = "";
-    setImageError(null);
-    if (imageSrc) setNotes("");
-    setSampleId(id);
-    setImageFile(null);
-    setImageSrc(SAMPLES[id].src);
     clearAnnotations();
   }
 
@@ -238,7 +216,6 @@ export function Workspace() {
     if (fileInput.current) fileInput.current.value = "";
     setImageError(null);
     setNotes("");
-    setSampleId(null);
     setImageFile(null);
     setImageSrc(null);
     clearAnnotations();
@@ -253,11 +230,7 @@ export function Workspace() {
     setAnnotations([]);
     setInvalid([]);
     try {
-      let file = imageFile;
-      if (!file && sampleId) {
-        const blob = await (await fetch(SAMPLES[sampleId].src)).blob();
-        file = new File([blob], "sample.png", { type: blob.type });
-      }
+      const file = imageFile;
       if (!file) throw new Error("No image selected.");
 
       // Small screenshots are sent at 2x and very wide ones with white padding for
@@ -366,16 +339,6 @@ export function Workspace() {
                 Choose file
               </button>
               <p className={styles.hint}>PNG or JPEG, up to 10 MB.</p>
-              {(Object.keys(SAMPLES) as SampleId[]).map((id) => (
-                <button
-                  key={id}
-                  type="button"
-                  className={styles.link}
-                  onClick={() => selectSample(id)}
-                >
-                  {SAMPLES[id].label}
-                </button>
-              ))}
             </div>
           )}
 

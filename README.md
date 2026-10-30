@@ -24,7 +24,7 @@ Open http://localhost:3000.
 
 ### Try it
 
-1. In the **Screenshot** area, drop a PNG/JPEG (up to 10 MB) anywhere on the page, paste one from the clipboard (⌘V / Ctrl+V), click **Choose file**, or click **or use the Floraday sample**. **New image** clears the image, notes and annotations.
+1. In the **Screenshot** area, drop a PNG/JPEG (up to 10 MB) anywhere on the page, paste one from the clipboard (⌘V / Ctrl+V), or click **Choose file**. **New image** clears the image, notes and annotations.
 2. Type some rough notes (required, up to 4,000 characters).
 3. Click **Generate**. Numbered callouts and bounding boxes appear over the screenshot, and annotations without a location are listed below it. Each Generate sends one request to the model API (costs a few tenths of a cent). Screenshots under 1400 px on the long side are upscaled 2x in the browser first, which gives more accurate boxes.
 
@@ -60,7 +60,7 @@ Open http://localhost:3000.
 - **The hosting platform, once deployed:** may keep request metadata or logs (not decided; the app is not deployed yet).
 - **Voice input** is not part of the MVP and is not implemented, so no audio is captured or sent anywhere. (If it is added later with the browser's speech recognition, the browser vendor, for example Google in Chrome, would process the audio and Pyosi would not receive or store it.)
 
-**Development:** tests never call the network (the model API is replaced by a fake `fetch`). Live requests cost money and are made only when approved. Test screenshots and raw model responses from experiments are kept outside the repository, on the developer's machine. The only screenshot in the repository is the Floraday sample (`public/fixtures/floraday.png`), cleared for publishing.
+**Development:** tests never call the network (the model API is replaced by a fake `fetch`). Live requests cost money and are made only when approved. Test screenshots and raw model responses from experiments are kept outside the repository, on the developer's machine. The only screenshot in the repository is a screenshot of the author's own Floraday web app (`public/fixtures/floraday.png`), cleared for publishing; it is used by the tests and the evaluation cases, not by the app.
 
 **Open items for the security check**
 
@@ -78,7 +78,7 @@ components/   UI components (Workspace, AnnotationOverlay)
 lib/          Types, Zod validation, model client, prompts and fixtures
 tests/        Unit tests
 docs/         Product brief and development log
-public/       Static files, including the Floraday sample
+public/       Static files, including the Floraday test screenshot
 ```
 
 ## Docs
