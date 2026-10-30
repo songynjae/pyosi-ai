@@ -126,6 +126,38 @@ Newest entries first.
 - Meta API: the documentation search confirms `reasoning_effort` ("none" is rejected) but did not show whether `temperature` or `seed` are accepted; to be tested with one small request.
 - Next (needs approval): prompt changes for items 1 and 2 (and unique descriptions), then re-run D1, D2, D5, D7, D8 three times each (about $0.075), and one small test of `temperature: 0`.
 
+## 2026-10-29: ContextMark cases measured (prompt v12, 60 live requests, about $0.30; total spent about $1.00)
+**Status: first measurement of plain box notes, ambiguous and missing elements. 46 of 60 runs pass (77%); 46 of 57 (81%) if the 3 timed-out requests are left out. Raw responses: `.eval/2026-10-29-annotate.v12-cm` (git-ignored). No pass bar is applied to this set yet.**
+
+| case | what | pass (5 runs) | median IoU | notes |
+|---|---|---|---|---|
+| CM1 | one button looks small | 5/5 | 0.93 | |
+| CM2 | card + button in one note | 4/5 | 0.93 | 1 request timed out |
+| CM3 | refresh button that does not exist | 5/5 | | reported as not found every time |
+| CM3b | same, with its expected position | 4/5 | | 1 request timed out |
+| CM4 | "hover effect isn't noticeable" (boundary case) | 1/5 | | 4 runs boxed the Rainy card, which is the hovered one (IoU with the card of CM6 about 1); ContextMark itself marked this case as a boundary |
+| CM5 | one icon is small | 4/5 | 0.87 | 1 request timed out; half of the boxes are below 0.7 |
+| CM6 | the hovered card | 5/5 | 0.98 | |
+| CM7 | a card named in the note | 5/5 | 0.99 | |
+| CM8 | hover note, no hover visible | 2/5 | | 3 runs put one box around all four cards instead of answering ambiguous |
+| CM9 | "card icons" = all four icons | 1/5 | 0.00 | 1 run found 4 boxes, 1 run drew one wide box over all icons, 3 runs answered ambiguous |
+| CM10 | only one button, must not be ambiguous | 5/5 | 0.93 | |
+| CM11 | delete button that does not exist | 5/5 | | |
+
+- **What is solid:** a located element named or clearly implied by the note (CM1, CM2, CM6, CM7, CM10): median IoU 0.93 to 0.99 and 24 of 25 passing runs (the failure is a timeout). Elements that do not exist are reported as not found 15 of 15 runs (CM3, CM3b minus one timeout, CM11).
+- **What is weak:** deciding between ambiguous and a guess (CM4, CM8: the model tends to commit to the most plausible element or to a group box), and a plural reference ("card icons", CM9: ambiguous or one merged box in 4 of 5 runs). Small icon boxes are less exact (CM5).
+- **Decision on CM4 and CM8 (owner, 2026-10-29), applied and rescored for free from the saved answers:** when the image itself points to a single element, "ambiguous" and a box on that element are both accepted (new expectation `ambiguousOr`, used for CM4: the only card in the hover state); with no such evidence (CM8) only "ambiguous" passes, and a box around the four cards stays a failure. Result: CM4 1/5 -> 4/5 (the 5th run boxed all four cards), overall **49 of 60 runs (82%); 49 of 57 (86%) without the 3 timeouts**. CM8 stays 2/5. Open point (2) below remains.
+- **Open point:** the timeouts: 3 of 60 requests (5%) timed out ("The model request timed out."); earlier runs had 1 "no content" in 30; the app does not retry (one request per Generate).
+- Not covered by these cases: other screen types (dark mode, mobile, dense UI), notes that are not about layout, and the English wording of the notes is a translation of the owner's Korean originals.
+
+## 2026-10-29: ContextMark cases converted for the evaluation harness (no live requests, no cost)
+**Status: converted and dry-run; not measured yet (a live run needs the owner's approval of the number of requests and the cost).**
+- `eval/cases-contextmark.mjs`: 12 cases (CM1 to CM11, CM3b) from ContextMark's test setup (the owner's own Floraday web app; ground truth "gt_v2" measured by the owner on 2026-10-22). Notes translated to English; the Korean originals are kept in the file. Expectations: `target` (box with IoU >= 0.5), `ambiguous`, `absent`.
+- `eval/score.mjs`: new expectation types `target` and `ambiguous`, IoU thresholds (draft), `targets` in the run score, `medianIou` and `goodShare` in the case summary. Existing scoring is unchanged. `scripts/eval.mjs --set contextmark` runs the set (no pass bar yet).
+- Checked with hand-made fake answers through the replay path: exact box, a box off the target, a missing element, an ambiguous answer and a four-box answer all score as intended. `npm test` 168 pass (6 new), `tsc` and `lint` pass.
+- Privacy: three of the four screenshots show the browser window (tab, address bar with a source query, a small profile picture, on one the macOS menu bar with the date and the status icons); they are kept in `.eval-private/contextmark/` (git-ignored) and are not committed. The fourth is `public/fixtures/floraday.png`.
+- Cost of a live run (not requested): 12 cases x 3 runs = 36 requests, about $0.18; x 5 runs = 60 requests, about $0.30.
+
 ## 2026-10-29: Test plan v2 and browser checks of editing and export (no code change, no cost)
 **Status: `docs/test-plan.md` rewritten (draft, awaiting the owner's approval of areas and case sources); the editing and export checks were run by Claude in the browser. One finding, nothing fixed.**
 - Why: the owner expected the tests to validate the whole annotation app; in practice 8 of 10 live cases were about distance lines and only one was a plain box note. The plan now names areas A to G (target identification, ambiguous/missing, screen variety, wording, consistency, distance lines, editing/export), lists case sources (existing D1 to D10, the ContextMark cases, new screenshots with ground truth read from the page) and a tuning / held-out split.

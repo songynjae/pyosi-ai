@@ -123,3 +123,69 @@ describe("unitsNotKept and caseVerdict", () => {
     assert.equal(caseVerdict({ runs: 0, passes: 0, medianEdgePct: null, stableCount: 0 }).ok, false);
   });
 });
+
+describe("scoreRun with located and ambiguous expectations (ContextMark cases)", () => {
+  const found = (label: string, box: ReturnType<typeof pct>, status = "found") => ({
+    id: label,
+    label,
+    description: `${label}.`,
+    status,
+    box: status === "found" ? box : null,
+  });
+  const target = (x0: number, y0: number, x1: number, y1: number) => ({ type: "target", box: [x0, y0, x1, y1] });
+
+  it("hits a box that overlaps the truth enough and reports its IoU", () => {
+    const r = run([found("A", pct(100, 100, 200, 200))], [target(100, 100, 200, 200)]);
+    assert.equal(r.pass, true);
+    assert.equal(r.targets[0].iou, 1);
+    assert.equal(r.targets[0].good, true);
+  });
+
+  it("fails when the box overlaps less than the hit threshold", () => {
+    // Truth 100x100, box shifted by 60 px: intersection 40x100, union 16000 -> IoU 0.25.
+    const r = run([found("A", pct(160, 100, 260, 200))], [target(100, 100, 200, 200)]);
+    assert.equal(r.pass, false);
+    assert.ok(r.targets[0].iou < THRESHOLDS.iouHit);
+    assert.equal(r.missing, 1);
+  });
+
+  it("uses each box for one target only", () => {
+    const expect = [target(100, 100, 200, 200), target(110, 110, 210, 210)];
+    const r = run([found("A", pct(100, 100, 200, 200))], expect);
+    assert.equal(r.pass, false);
+    assert.equal(r.targets.filter((t) => t.ok).length, 1);
+  });
+
+  it("passes two separate boxes for two targets", () => {
+    const expect = [target(100, 100, 200, 200), target(400, 100, 500, 200)];
+    const r = run([found("A", pct(100, 100, 200, 200)), found("B", pct(400, 100, 500, 200))], expect);
+    assert.equal(r.pass, true);
+  });
+
+  it("accepts an ambiguous entry and rejects a guessed box", () => {
+    const ok = run([found("Hover", pct(0, 0, 1, 1), "ambiguous")], [{ type: "ambiguous" }]);
+    assert.equal(ok.pass, true);
+    const guessed = run([found("Card", pct(100, 100, 200, 200))], [{ type: "ambiguous" }]);
+    assert.equal(guessed.pass, false);
+    assert.ok(guessed.problems.some((p) => p.includes("expected an ambiguous entry")));
+  });
+
+  it("ambiguousOr accepts an ambiguous answer or a box on the element the image points to, not another box", () => {
+    const expect = [{ type: "ambiguousOr", box: [100, 100, 200, 200] }];
+    assert.equal(run([found("Hover", pct(0, 0, 1, 1), "ambiguous")], expect).pass, true);
+    assert.equal(run([found("Card", pct(100, 100, 200, 200))], expect).pass, true);
+    const elsewhere = run([found("Cards", pct(400, 100, 800, 200))], expect);
+    assert.equal(elsewhere.pass, false);
+    assert.ok(elsewhere.problems.some((p) => p.includes("not on the element")));
+    assert.equal(run([], expect).pass, false);
+  });
+
+  it("summarizeCase reports the median IoU and the share of good hits", () => {
+    const runs = [0.9, 0.6, 0.8].map((v) => ({
+      score: { pass: true, entries: 1, invalid: 0, gaps: [], targets: [{ iou: v, ok: true, good: v >= 0.7 }] },
+    }));
+    const s = summarizeCase(runs);
+    assert.equal(s.medianIou, 0.8);
+    assert.ok(Math.abs((s.goodShare ?? 0) - 2 / 3) < 1e-9);
+  });
+});
