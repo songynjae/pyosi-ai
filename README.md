@@ -55,7 +55,7 @@ Measured with the evaluation harness (`eval/`, `scripts/eval.mjs`; raw answers k
 
 **Known limits** (also what the demo does not claim):
 - Deciding between "ambiguous" and a guess: the model tends to commit to the most plausible element, or to one box around a group.
-- Plural references ("the card icons"): often answered as ambiguous or with one merged box.
+- Plural references: "the card icons" is often answered as ambiguous or with one merged box; on text screens "all the delivery dates" or "every unit price" worked in most runs (the right items in 11 of 12 runs, every box within overlap 0.5 in 8 of 12), with one run that drew a single box around a whole column and one screen where the boxes sat about 14 px too low.
 - Long lists (8 items in a column) and small icon boxes are less exact.
 - On light grey outlines on a white background the snapping can move a distance line's end into the neighbouring element (up to about 27 px on the sample card and button).
 - About 5% of the model requests time out (the app sends one request per Generate and does not retry).
