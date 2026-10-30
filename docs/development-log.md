@@ -118,6 +118,21 @@ Newest entries first.
 - Deployment check at the end of the day (`https://pyosi.netlify.app`, after PRs #14 to #16): page 200; no code 401; the judges code with an empty form 400; a 4.3 MB upload refused with the app's 413 message; one real Generate on the Floraday screenshot answered in about 4.5 s (annotate.v12, one entry). Live requests of the day: 42 (about $0.21 of the $1 budget).
 - Left for the owner: the evening decisions listed in the summary of this session (making the repository public on Monday, the video, the form fields marked [owner], the beta, the Netlify badge, the author address in the history).
 
+## 2026-10-30: Text-heavy screens: small text areas (a date, a price, a quantity) (12 live requests, about $0.06; the day's total 54 requests, about $0.27)
+**Status: measured; no code, prompt or app change. Why:** the sales professional of the user interviews marks dates, prices, quantities and earlier agreements, and none of the measured cases had small areas of text; the interviewees' real work screens cannot leave their companies, so the screens are mock-ups with fake data (`eval/fixtures/text/*.html`, rendered by `scripts/make-text-fixtures.mjs`; the truth boxes are read from the page: `eval/fixtures/text/truth.mjs`). Cases in `eval/cases-text.mjs`, run with `npm run eval -- --set text`; 3 runs each, prompt v12; raw answers `.eval/2026-10-30-text` (git-ignored).
+
+| case | what | pass | median IoU | share of boxes with IoU 0.7 or more |
+|---|---|---|---|---|
+| T1 | purchase order: delivery date and unit price of line 2 (two table cells, 68 x 17 and 89 x 17 px) | 3/3 | 0.85 | 100% |
+| T2 | email: "14 March" and "500 units" inside a sentence (65 x 18 px each) | 3/3 | 0.60 | 17% |
+| T3 | chat: the message that confirms price and delivery (560 x 40 px) | 3/3 | 0.98 | 100% |
+| T4 | invoice: the total amount due | 0/3 | 0.30 | 0% |
+
+- **T4 is mostly my truth definition:** the truth is the amount "USD 7,447.00" only; in all three runs the model boxed the whole line from the label "Total due" to the end of the amount (x 715 to 1045; the vertical extent and the right edge are exact). The note "highlight the total amount due" can be read either way, so this is not counted as a clear model failure, and the truth was not changed after seeing the answers.
+- **T2:** the position is right; the sides are loose by 4 to 20 px on boxes that are only 18 px high, which gives overlaps around 0.6 (all above the 0.5 hit threshold, few above 0.7).
+- **Reading:** for a named table cell or a whole message the boxes are tight (median IoU 0.85 and 0.98); for a phrase inside a sentence they are positioned correctly but loose; a note that can mean a label plus its value gets the wider box. The measurement does not support promising pixel-tight boxes around single words.
+- Limits: 4 mock screens, one rendering each (1200 x 800, 2x upscaled by the harness), English only, 3 runs; real documents (scans, dense spreadsheets, other fonts) are not covered.
+
 ## 2026-10-29: Deployment checked on Netlify, and a hard cap on all model requests (live requests: 2, about $0.01)
 **Status: the deployment works; the hard cap is implemented and tested locally on `feat/budget-cap`, not merged, not tested on Netlify yet.**
 - Netlify (`https://pyosi.netlify.app`, deployed from `main`): the page loads with the new UI; no or a wrong code gives 401; the judges code reaches the normal checks; 3.9 MB reaches the app (415 for a non-image), 4.3 MB gives the app's 413 message, 5.2 MB gives Netlify's own 413; one real Generate on the Floraday screenshot answered in about 6 s (annotate.v12, one distance entry, no invalid); a second one from the browser with the invitation link gave two entries. The call-limit overflow was not tried on Netlify.
