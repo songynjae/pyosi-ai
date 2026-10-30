@@ -14,11 +14,8 @@ It is not an image analyzer: it does not describe what is in a picture. It start
 
 ## Try it
 
-Three ways to see it, from least to most effort:
-
-1. **Watch the 3-minute demo video** (linked in the hackathon submission). Nothing to install.
-2. **Hosted demo:** https://pyosi.netlify.app. Generate needs an invitation link with an access code. The code is not in this repository: the hackathon judges get their link in the submission form, and the number of model requests is capped.
-3. **Run it yourself** from this repository. It needs Node.js 20.9 or newer and npm, and your own Meta Model API key (the author's key is never in the repository).
+- **Run it yourself** from this repository. It needs Node.js 20.9 or newer and npm, and your own Meta Model API key (the author's key is never in the repository). Steps below.
+- **Hosted demo:** https://pyosi.netlify.app. Generate needs an invitation link with an access code. The code is not published in this repository, and the number of model requests is capped.
 
 ```bash
 npm install
