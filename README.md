@@ -1,12 +1,12 @@
 # Pyosi
 
-**Pyosi turns a screenshot and a few rough notes into numbered callouts, boxes and distance lines with short explanations that you can edit and export.** Write "the card and the button are too close" or "the photo looks too large", and Pyosi marks the right elements on the screenshot, draws the gap between two elements where the note is about spacing, and explains each mark in a sentence. Built for the Meta Global AI Developer Hackathon (Indie Developer Track, "Build for Your World"), with Meta's Muse Spark model through the Meta Model API.
+**Pyosi identifies the part of a screenshot you are talking about, and marks it.** Write or paste the message you would send with the screenshot ("the delivery date on the second line looks wrong", "the card and the button are too close"), and Pyosi works out which parts you mean, marks them with numbered boxes, draws the distance when you talk about the space between two things, and says "not found" or "ambiguous" instead of guessing when it cannot tell. Each mark has a short explanation you can edit, and the marked image can be exported as a PNG. Built for the Meta Global AI Developer Hackathon (Indie Developer Track, "Build for Your World"), with Meta's Muse Spark model through the Meta Model API.
 
-It is not a generic image analyzer: the point is the workflow from rough notes to a screenshot you can send to a colleague, with positions that are checked against the pixels and an evaluation harness that measures how often the marks are right.
+It is not an image analyzer: it does not describe what is in a picture. It starts from what the person says and answers one question, "which part is that?", with positions that are checked against the pixels and an evaluation harness that measures how often the marks are right.
 
 ## What it does
 
-1. **Marks the element a note refers to.** The model answers with boxes on a 0-1000 grid; Pyosi converts and validates them. A note about an element that is not on the screen is reported as "not found", and a note that fits several elements as "ambiguous"; neither gets an invented box.
+1. **Identifies the part you refer to, and marks it.** It finds things by what they are (a date, a price, "the message where she confirms the price") and not only by name, from a rough note or a full message. The model answers with boxes on a 0-1000 grid; Pyosi converts and validates them. A note about an element that is not on the screen is reported as "not found", and a note that fits several elements as "ambiguous"; neither gets an invented box.
 2. **Draws distance lines for spacing notes.** The model locates every item of a row or column once; the code computes the gap between neighbours, and the line is then snapped to the real edges using the original image's pixels (when the background is plain enough to be sure).
 3. **Lets you edit the result:** move, resize and delete boxes, edit labels and descriptions.
 4. **Exports a PNG** at the original image size (annotated, which adds the description list below the image; boxes only; or the original), as a download or to the clipboard.
@@ -49,6 +49,8 @@ Measured with the evaluation harness (`eval/`, `scripts/eval.mjs`; raw answers k
 
 - **Plain notes about a named or clearly implied element** (ContextMark cases CM1, CM2, CM6, CM7, CM10): median overlap with the hand-measured box (IoU) 0.93 to 0.99. A missing element was reported as "not found" in 14 of 14 completed runs (CM3, CM3b, CM11).
 - **ContextMark set overall:** 49 of 60 runs pass (82%; 49 of 57 without the 3 requests that timed out).
+- **Small areas of text on mock screens** (a purchase order, an email, a chat, an invoice; fake data): a table cell and a whole message are marked tightly (median overlap 0.85 and 0.98); a phrase inside a sentence is in the right place but loose (0.60 on 18 px high text); "the total amount due" got the label and the value together where the reference answer was the value only.
+- **Full messages with a greeting instead of rough notes** (5 cases, 15 runs; 14 completed): every completed run found every part the message refers to (median overlap 0.72 to 0.99), marked nothing for the remarks that need no mark, and reported a promise that is not on the screen as "not found". By the strict harness only 6 of 15 runs "pass": a polite request such as "Could you check both before Monday?" is rewritten as a statement, which the wording rule counts as a lost question; one request failed with an HTTP 502.
 - **Distance lines** (ten cases: a toolbar, an icon list, a web page, synthetic rows and hardware drawings; prompt v11 and v12): 24 of 30 runs pass (80%) with the draft criteria; after snapping, the line ends are typically within a few pixels of the real gap (median 1 px over 50 saved gaps; the worst, 76 px, is on the 8-item list).
 
 **Known limits** (also what the demo does not claim):
