@@ -119,6 +119,23 @@ export function scoreRun({ annotations, invalidCount, expect, notes, size }) {
         missing += 1;
         problems.push(`target ${e.box.join(",")}: best overlap ${v.toFixed(2)} (needs ${THRESHOLDS.iouHit})`);
       }
+    } else if (e.type === "ambiguousOr") {
+      // The image itself points to one element (e.g. the only card in the hover state): "ambiguous" and a
+      // box on that element (IoU >= iouHit with e.box) are both accepted; a box anywhere else is a guess.
+      const [tx0, ty0, tx1, ty1] = e.box;
+      const onTarget = boxes.find((b) => {
+        const p = toPx(b.box, size);
+        return iou([p.x0, p.y0, p.x1, p.y1], [tx0, ty0, tx1, ty1]) >= THRESHOLDS.iouHit;
+      });
+      const askedBack = annotations.some((a) => a.status === "ambiguous") && boxes.length === 0;
+      if (!onTarget && !askedBack) {
+        missing += 1;
+        problems.push(
+          boxes.length > 0
+            ? `box not on the element the image points to (${e.box.join(",")}) and not answered as ambiguous`
+            : "expected an ambiguous entry or a box on the element the image points to",
+        );
+      }
     } else if (e.type === "ambiguous") {
       // Several elements fit the notes equally: the answer must be "ambiguous", not a guessed box.
       if (!annotations.some((a) => a.status === "ambiguous")) {

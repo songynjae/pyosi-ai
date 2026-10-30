@@ -170,6 +170,16 @@ describe("scoreRun with located and ambiguous expectations (ContextMark cases)",
     assert.ok(guessed.problems.some((p) => p.includes("expected an ambiguous entry")));
   });
 
+  it("ambiguousOr accepts an ambiguous answer or a box on the element the image points to, not another box", () => {
+    const expect = [{ type: "ambiguousOr", box: [100, 100, 200, 200] }];
+    assert.equal(run([found("Hover", pct(0, 0, 1, 1), "ambiguous")], expect).pass, true);
+    assert.equal(run([found("Card", pct(100, 100, 200, 200))], expect).pass, true);
+    const elsewhere = run([found("Cards", pct(400, 100, 800, 200))], expect);
+    assert.equal(elsewhere.pass, false);
+    assert.ok(elsewhere.problems.some((p) => p.includes("not on the element")));
+    assert.equal(run([], expect).pass, false);
+  });
+
   it("summarizeCase reports the median IoU and the share of good hits", () => {
     const runs = [0.9, 0.6, 0.8].map((v) => ({
       score: { pass: true, entries: 1, invalid: 0, gaps: [], targets: [{ iou: v, ok: true, good: v >= 0.7 }] },

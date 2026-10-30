@@ -7,6 +7,7 @@
 // Korean and are kept in `original`), and the expected answers use Pyosi's vocabulary:
 //   target    a located element: a found box must overlap the truth box (IoU, see THRESHOLDS)
 //   ambiguous the notes fit several elements: the answer must be "ambiguous", not a guessed box
+//   ambiguousOr  as ambiguous, but a box on the one element the image points to is accepted too (CM4)
 //   absent    the named element is not in the screenshot: it must be reported as not found
 // Truth boxes are [x0, y0, x1, y1] in ORIGINAL image pixels (ContextMark's single-annotator ground truth).
 // CM_Case_1_2 is the same file as public/fixtures/floraday.png; the other three screenshots show the
@@ -62,8 +63,10 @@ export const CM_CASES = [
     image: case4,
     notes: "The hover effect isn't noticeable. Please check.",
     original: "Hover 효과가 두드러지지 않네요. 확인해주세요.",
-    // ContextMark marked this as the boundary case: one card is hovered, the notes do not name it.
-    expect: [{ type: "ambiguous" }],
+    // ContextMark marked this as the boundary case: one card (Rainy) is in the hover state, the notes do not
+    // name it. Owner's rule (2026-10-29): when the image points to a single element, "ambiguous" and a box
+    // on that element are both fine; a box anywhere else is a guess.
+    expect: [{ type: "ambiguousOr", box: [1035, 765, 1285, 952] }],
   },
   {
     id: "CM5",
