@@ -7,6 +7,10 @@ import { MAX_NOTES_CHARS } from "./prompts/annotate.ts";
 type Deps = {
   apiKey: string | undefined;
   fetchImpl?: typeof fetch;
+  /** Access code and call limit (lib/access.ts): returns the error response, or null to go on. */
+  guard?: (request: Request) => Response | null;
+  /** Model request timeout in ms; the default is meta-client's. A host with a shorter function limit sets a shorter one. */
+  timeoutMs?: number;
 };
 
 function error(status: number, code: string, message: string) {
@@ -18,7 +22,10 @@ function error(status: number, code: string, message: string) {
  * Success: { annotations, invalid, promptVersion, usage, latencyMs }.
  * Failure: { error: { code, message } }. The API key is never included.
  */
-export async function handleAnnotate(request: Request, { apiKey, fetchImpl }: Deps) {
+export async function handleAnnotate(request: Request, { apiKey, fetchImpl, guard, timeoutMs }: Deps) {
+  const denied = guard?.(request);
+  if (denied) return denied;
+
   let form: FormData;
   try {
     form = await request.formData();
@@ -39,7 +46,7 @@ export async function handleAnnotate(request: Request, { apiKey, fetchImpl }: De
   }
   if (image.size === 0) return error(400, "empty_image", "The image is empty.");
   if (image.size > MAX_IMAGE_BYTES) {
-    return error(413, "image_too_large", "The image is larger than 10 MB.");
+    return error(413, "image_too_large", `The image is larger than ${MAX_IMAGE_BYTES / (1024 * 1024)} MB.`);
   }
 
   const bytes = new Uint8Array(await image.arrayBuffer());
@@ -57,6 +64,7 @@ export async function handleAnnotate(request: Request, { apiKey, fetchImpl }: De
     image: { bytes, mime },
     notes: notes.trim(),
     fetchImpl,
+    timeoutMs,
   });
   if (!result.ok) {
     return error(result.kind === "timeout" ? 504 : 502, `upstream_${result.kind}`, result.message);

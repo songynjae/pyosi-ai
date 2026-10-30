@@ -1,4 +1,5 @@
-export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+// 4 MB: the public deployment (Netlify) accepts about 4.5 MB per request (docs/m6-plan.md, section 2).
+export const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 export const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg"];
 
 export type ImageCheck = { ok: true } | { ok: false; message: string };
