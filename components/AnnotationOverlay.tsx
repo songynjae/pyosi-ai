@@ -80,7 +80,7 @@ export function AnnotationOverlay({
     const metrics = exportMetrics(0); // scale 1: the on-screen badge is 24 px
     const points = annotations.flatMap((a) =>
       a.status === "found" && a.box
-        ? [{ id: a.id, ...badgeCenter(pixelBox(a.box, size), badgePlacement(a.box, a.kind, a.axis), metrics, size) }]
+        ? [{ id: a.id, ...badgeCenter(pixelBox(a.box, size), badgePlacement(a.box, a.kind, a.axis, size.height / size.width), metrics, size) }]
         : [],
     );
     return separateBadges(points, metrics.badge, size.height);
@@ -129,7 +129,7 @@ export function AnnotationOverlay({
         if (a.status !== "found" || !a.box) return null;
         const found = a as Annotation & { box: BoxPercent };
         const selected = a.id === selectedId;
-        const placement = badgePlacement(a.box, a.kind, a.axis);
+        const placement = badgePlacement(a.box, a.kind, a.axis, size ? size.height / size.width : undefined);
         const measure = a.kind === "measure" && a.axis ? a.axis : null;
         return (
           <div
