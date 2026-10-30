@@ -49,7 +49,7 @@ If Generate says "The model API key is not configured on the server", check that
 
 ### Using the app
 
-1. In the **Screenshot** area, drop a PNG/JPEG (up to 4 MB) anywhere on the page, paste one from the clipboard (⌘V / Ctrl+V), or click **Choose file**. **New image** clears the image, notes and annotations.
+1. In the **Screenshot** area, drag and drop a PNG/JPEG file (up to 4 MB) onto the page, paste one from the clipboard (⌘V / Ctrl+V), or click **Choose file**. **New image** clears the image, notes and annotations.
 2. Type some rough notes (required, up to 4,000 characters).
 3. Click **Generate**. Numbered callouts and bounding boxes appear over the screenshot, and annotations without a location are listed below it. Each Generate sends one request to the model API (a few tenths of a cent). Screenshots under 1400 px on the long side are upscaled 2x in the browser first, and very wide ones get white padding below; both give more accurate boxes, and only the copy sent to the model is changed.
 4. Click a box to move, resize or delete it; use **Edit** in the list to change the text; use **Export** to download or copy a PNG.
