@@ -12,14 +12,14 @@ describe("validateImageFile", () => {
     });
   });
 
-  it("accepts a file of exactly 10 MB and rejects one byte more", () => {
+  it("accepts a file of exactly 4 MB and rejects one byte more", () => {
     assert.equal(
       validateImageFile({ type: "image/png", size: MAX_IMAGE_BYTES }).ok,
       true,
     );
     const r = validateImageFile({ type: "image/png", size: MAX_IMAGE_BYTES + 1 });
     assert.equal(r.ok, false);
-    if (!r.ok) assert.match(r.message, /too large.*maximum size is 10 MB/);
+    if (!r.ok) assert.match(r.message, /too large.*maximum size is 4 MB/);
   });
 
   it("rejects other image types with a clear message", () => {

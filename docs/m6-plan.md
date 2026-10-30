@@ -13,11 +13,24 @@ From the hackathon's FAQ (pasted by the owner):
 - Projects to avoid include "basic RAG apps" and **"simple image analyzers"**.
 - Bonus awards: Most Viral (X post of the demo, engagement counted through Nov 8), Best Build on Meta Open Weight Models, Community Vote, Best Agentic Use-Case, Best Creative Build.
 
-## 2. Public deployment: open question
-The form has no deployed-URL field, so the first plan (2026-10-29) dropped the deployment. The FAQ sentence "Judges assess your video, code and live product" leaves it open whether judges expect something they can click. Two options:
-- **A. No deployment (current plan).** Video, public repository and a README that lets a reviewer run the app with their own `MODEL_API_KEY`. No access control or rate limit is needed because nothing public can spend the owner's key.
-- **B. A limited public deployment**, linked in the project description. Before it goes up, `POST /api/annotate` needs access control or a strict rate limit and a spending cap on the key (it has none today). This is protection work, not a feature, but it needs hosting setup and testing in the Friday window.
-To decide: ask the organizers (the FAQ says to check with @CV when unsure) what "live product" means. Until then A is the plan; B would be scheduled for Friday afternoon only if the answer says a clickable product is expected.
+## 2. Public deployment on Netlify (decided 2026-10-29)
+The form has no deployed-URL field, but the FAQ says "Judges assess your video, code and live product", and the owner decided to deploy (option B) on **Netlify** (the owner's Floraday app is already hosted there). The organizers were not asked. Beta testing with a few invited users is **optional**: it starts only after the deployment is stable and is skipped otherwise.
+
+What the deployment needs (nothing public can spend the owner's key until these are in):
+1. **Access control and a call limit on `POST /api/annotate`.** **Implemented 2026-10-29 (`lib/access.ts`, branch `feat/route-protection`):** an access code checked by the route (a code per tester, kept in an environment variable, so one can be removed alone), plus Netlify's rate limit. The Netlify docs describe a per-function `rateLimit` setting (window up to 180 seconds, grouped by IP or domain, answer 429); a support thread suggests it may not apply to a route inside a bundled Next.js app, so it must be tested on a deploy preview before it is relied on. Backstop: a spending limit or budget alert on the Meta account (the owner checks whether the console has one) and removing the environment variable as a kill switch.
+2. **Payload size.** Netlify Functions buffer at most 6 MB per request, about 4.5 MB for a binary upload (base64). The app used to accept images up to 10 MB, so images between about 4.5 and 10 MB would have failed. **Done (owner approved 2026-10-29): the limit is 4 MB** (`MAX_IMAGE_BYTES`; the empty state says so; the 2x or padded copy falls back to the original when it would be over the limit).
+3. **Time limit.** Synchronous functions stop at 60 seconds, the same as the app's model timeout (60 s). Proposed: set the model timeout to about 50 s so the app answers with its own message before the platform cuts the request.
+4. **Next.js 16 on Netlify.** The Netlify adapter supports Next.js 16 and route handlers; this app also uses `cacheComponents`, which was not confirmed in the docs found, so the first deploy preview is the test. Netlify's notice of 2026-09-30 asks for `next` 16.3.8 or newer; the app is on 16.4.3.
+5. **Notice on the page** that the screenshot and notes are sent to Meta's model API. **Done (owner approved 2026-10-29):** a muted line under the Generate button; the README has the same statement in its Data handling section.
+6. **Secrets:** `MODEL_API_KEY` is entered by the owner in Netlify's environment settings; Claude has no access to Netlify or the key.
+Sources checked 2026-10-29: docs.netlify.com (functions limits, rate limiting) and the Netlify changelog for Next.js 16.
+
+**How the protection works (implemented, tested with unit tests and by calling the real route handler):**
+- `ACCESS_CODES` (environment variable on Netlify): `name:code,name:code` (or plain codes). A request needs one in the `x-access-code` header; the page sends the code from the invitation link `https://<site>/?code=<code>` (kept in `sessionStorage` for the tab). Wrong or missing: 401 with "This demo needs an invitation link."
+- In production without `ACCESS_CODES` the route refuses everything (503); `ACCESS_CODES=off` turns the check off (for someone who runs the production build on their own machine); in development it is open.
+- Limits, counted in memory per server instance (best effort on serverless): `RATE_LIMIT_PER_CODE_PER_HOUR` (default 30) and `RATE_LIMIT_TOTAL_PER_DAY` (default 400); over the limit: 429 with "Try again in about N minutes". With the $5 budget (about 1,000 requests over the judging days), set the daily total to about 200 on Netlify. The Meta-side limit is still the backstop.
+- `MODEL_TIMEOUT_MS` (environment variable, for example 50000) shortens the model request timeout; unset, the default of 60 s stays (the evaluation harness is unaffected).
+- Netlify's own `rateLimit` setting is not used yet: it may not apply inside a Next.js app, and the in-app limits already exist.
 
 ## 3. Work items
 | # | Item | Who | Cost |
@@ -27,13 +40,14 @@ To decide: ask the organizers (the FAQ says to check with @CV when unsure) what 
 | 3 | Repository for the public: license (owner chooses, MIT suggested), README (what it is, how to run with `MODEL_API_KEY`, Data handling, known limits, evaluation results), `CLAUDE.md` "Current state" brought up to date (it still lists editing and export as not implemented), review of `docs/` and the git history before it goes public, check that no private images or keys are tracked (checked once on 2026-10-29 by pattern search: nothing found; repeat before publishing) | Claude; making the repo public needs the owner's approval | none |
 | 4 | Demo video script: scenes, what is on screen, what is said, 3 minutes; checklist for recording | Claude writes it; the owner records | none |
 | 5 | Form answers: project description, use of Meta products (Muse Spark 1.3 through Meta Model API: vision, grounding, structured output), why Meta's models matter | Claude drafts; the owner reviews and submits | none |
+| 7 | Netlify deployment (section 2): access code and call limit on the route, payload and timeout settings, notice text, deploy preview test, production deploy, test on the deployed site; optional beta testing afterwards | Claude implements and tests (live requests need approved amounts); the owner owns the Netlify account, the environment variables and the Meta-side limit | live requests for the tests, amount stated first |
 | 6 | General box-note accuracy (areas A and B of `docs/test-plan.md`): convert the ContextMark cases, then one measured run | Claude; the live run needs approval | about $0.15 to $0.30 |
 
 ## 4. Schedule
 | When | Work |
 |---|---|
-| Thursday 2026-10-29 (rest of day) | Item 6 preparation (free): convert ContextMark cases, privacy check of its images; draft the form answers and the video script |
-| Friday 2026-10-30 | Morning: item 1 (demo path, live runs with approved amounts) and item 2 (UI polish on demo screens). Afternoon: item 3 (repository preparation), README, freeze. The owner reviews the visuals and the script |
+| Thursday 2026-10-29 | Done: ContextMark cases converted and measured (49 of 60 runs pass), PR #10 merged. Open: the owner's choices for item 7 |
+| Friday 2026-10-30 | Morning: item 7 first (route protection, settings, deploy preview), then item 1 (demo path, live runs with approved amounts). Afternoon: production deploy and test, item 3 (repository preparation), README, freeze. Item 2 (UI polish) shrinks to the screens that appear in the video, and is cut first if time runs out. Optional beta: invitations go out Friday evening only if the deployment is stable. The owner reviews the visuals and the script |
 | Saturday and Sunday | No work |
 | Monday 2026-11-02 | The owner records the video; fixes only for bugs seen while recording; make the repository public after the owner's approval |
 | Tuesday 2026-11-03 | Submit with margin (form, repository link, video link); no changes after that unless something is broken |
@@ -45,12 +59,15 @@ To decide: ask the organizers (the FAQ says to check with @CV when unsure) what 
 - Every required field of the form is answered; the owner has read the text and pressed submit.
 
 ## 6. Needed from the owner
-Decided: license MIT (2026-10-29); track and problem statement (above). Everything else below is asked when it is due.
-1. **Now:** whether to ask the organizers what "live product" means (section 2), and whether to enter the Most Viral Track (needs an X post of the demo, posted by the owner).
-2. **Friday morning:** confirm the UI polish direction (neutral clean look with one accent colour, system fonts, no new dependency) before the CSS pass.
-3. **Before each live run:** approval of the number of requests and the amount.
-4. **Friday and Monday:** review of the UI visuals, the video script and the form answers; recording the video (the owner); approval to make the repository public (after the pre-publication review).
-Not asked, done as part of item 3: bringing `CLAUDE.md` "Current state" up to date.
+Decided (2026-10-29): license MIT; track and problem statement; deployment on Netlify; beta testing optional; access by a code per tester plus a call limit; budget for judges and testers $5 (about 1,000 requests).
+1. **Now (before the Friday work on item 7):**
+   - whether the Meta Model API console has a spending limit or budget alert, and setting it;
+   - creating or choosing the Netlify site and putting `MODEL_API_KEY` in its environment settings when the deploy preview works (Claude has no access to either);
+2. **If beta testing is wanted:** the number of testers (5 to 10 suggested), where feedback goes (an external form), and Meta's data-retention terms read before outside users send screenshots.
+3. **Friday morning:** confirm the UI polish direction (neutral clean look with one accent colour, system fonts, no new dependency).
+4. **Before each live run:** approval of the number of requests and the amount.
+5. **Friday and Monday:** review of the UI visuals, the video script and the form answers; recording the video (the owner); approval to make the repository public (after the pre-publication review).
+Not asked, done as part of item 3: bringing `CLAUDE.md` "Current state" up to date. Optional: asking the organizers what "live product" means, and entering the Most Viral Track (needs an X post by the owner).
 
 ## 7. Risks
 - **"Simple image analyzer" is on the list of projects to avoid.** Pyosi must not be presented as one. What it is: a workflow from rough notes to editable, exportable annotated screenshots; spatial grounding with measured accuracy; distance lines whose positions are snapped to the real pixels; editing and export; an evaluation harness with fixed cases and saved raw responses. The description and the video lead with that, with the measured limits stated (see below).
@@ -61,5 +78,6 @@ Not asked, done as part of item 3: bringing `CLAUDE.md` "Current state" up to da
 - **Impact is scored; the target user is unvalidated** (engineers who share screenshots). The description says so instead of inventing numbers.
 - **Public repository:** the history contains the author's name and email and the full development and evaluation logs. Reviewed in item 3 before publishing.
 - **Video quality and length (3 minutes) is the owner's recording**, so it is scheduled on Monday with Tuesday as margin.
-- **API key and cost:** live runs cost money; the submission itself needs none under option A.
+- **API key and cost:** with a public deployment every call spends the owner's key: the route is protected (section 2), the Meta-side limit is the backstop, and the budget for judges and testers is fixed beforehand.
+- **Friday is crowded** (deployment, protection, demo path, repository, README): item 2 is cut first; the deployment itself is not optional any more, but beta testing is.
 - **Not used, not claimed:** open-weight models (so no claim for that bonus) and other Muse or SAM models; mentioned only as possible future work.

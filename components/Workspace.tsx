@@ -17,7 +17,9 @@ import { loadPixels } from "@/lib/pixels";
 import { refineAnnotations } from "@/lib/refine-gap";
 import { prepareImage } from "@/lib/upscale";
 import { pickDroppedFile, pickPastedImage } from "@/lib/dropped-file";
-import { validateImageFile } from "@/lib/image-validation";
+import { MAX_IMAGE_BYTES, validateImageFile } from "@/lib/image-validation";
+import { ACCESS_HEADER } from "@/lib/access-header";
+import { readAccessCode } from "@/lib/access-client";
 import type { Annotation, BoxPercent, InvalidAnnotation } from "@/lib/types";
 import styles from "./Workspace.module.css";
 
@@ -239,7 +241,12 @@ export function Workspace() {
       const form = new FormData();
       form.set("image", prepared.file);
       form.set("notes", notes);
-      const res = await fetch("/api/annotate", { method: "POST", body: form });
+      const code = readAccessCode();
+      const res = await fetch("/api/annotate", {
+        method: "POST",
+        body: form,
+        headers: code ? { [ACCESS_HEADER]: code } : undefined,
+      });
       const body = await res.json().catch(() => null);
       if (id !== requestId.current) return;
       if (!res.ok) {
@@ -338,7 +345,7 @@ export function Workspace() {
               >
                 Choose file
               </button>
-              <p className={styles.hint}>PNG or JPEG, up to 10 MB.</p>
+              <p className={styles.hint}>PNG or JPEG, up to {MAX_IMAGE_BYTES / (1024 * 1024)} MB.</p>
             </div>
           )}
 
@@ -442,6 +449,10 @@ export function Workspace() {
               <p className={styles.generateHint}>Add some notes to enable Generate.</p>
             )
           )}
+          <p className={styles.generateHint}>
+            Generate sends your screenshot and notes to Meta&apos;s Muse Spark model API. Pyosi does not store them.
+            Please don&apos;t upload confidential or personal information.
+          </p>
           {generateError && (
             <p className={styles.error} role="alert">
               {generateError}
