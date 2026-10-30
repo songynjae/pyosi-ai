@@ -126,6 +126,14 @@ Newest entries first.
 - Meta API: the documentation search confirms `reasoning_effort` ("none" is rejected) but did not show whether `temperature` or `seed` are accepted; to be tested with one small request.
 - Next (needs approval): prompt changes for items 1 and 2 (and unique descriptions), then re-run D1, D2, D5, D7, D8 three times each (about $0.075), and one small test of `temperature: 0`.
 
+## 2026-10-29: ContextMark cases converted for the evaluation harness (no live requests, no cost)
+**Status: converted and dry-run; not measured yet (a live run needs the owner's approval of the number of requests and the cost).**
+- `eval/cases-contextmark.mjs`: 12 cases (CM1 to CM11, CM3b) from ContextMark's test setup (the owner's own Floraday web app; ground truth "gt_v2" measured by the owner on 2026-10-22). Notes translated to English; the Korean originals are kept in the file. Expectations: `target` (box with IoU >= 0.5), `ambiguous`, `absent`.
+- `eval/score.mjs`: new expectation types `target` and `ambiguous`, IoU thresholds (draft), `targets` in the run score, `medianIou` and `goodShare` in the case summary. Existing scoring is unchanged. `scripts/eval.mjs --set contextmark` runs the set (no pass bar yet).
+- Checked with hand-made fake answers through the replay path: exact box, a box off the target, a missing element, an ambiguous answer and a four-box answer all score as intended. `npm test` 168 pass (6 new), `tsc` and `lint` pass.
+- Privacy: three of the four screenshots show the browser window (tab, address bar with a source query, a small profile picture, on one the macOS menu bar with the date and the status icons); they are kept in `.eval-private/contextmark/` (git-ignored) and are not committed. The fourth is `public/fixtures/floraday.png`.
+- Cost of a live run (not requested): 12 cases x 3 runs = 36 requests, about $0.18; x 5 runs = 60 requests, about $0.30.
+
 ## 2026-10-29: Test plan v2 and browser checks of editing and export (no code change, no cost)
 **Status: `docs/test-plan.md` rewritten (draft, awaiting the owner's approval of areas and case sources); the editing and export checks were run by Claude in the browser. One finding, nothing fixed.**
 - Why: the owner expected the tests to validate the whole annotation app; in practice 8 of 10 live cases were about distance lines and only one was a plain box note. The plan now names areas A to G (target identification, ambiguous/missing, screen variety, wording, consistency, distance lines, editing/export), lists case sources (existing D1 to D10, the ContextMark cases, new screenshots with ground truth read from the page) and a tuning / held-out split.

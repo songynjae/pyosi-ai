@@ -10,6 +10,9 @@ export const THRESHOLDS = {
   crossPct: 3,
   /** "Tight" gaps for the report: both ends within this much. */
   tightPct: 1.5,
+  /** A located element counts as hit when the overlap with the truth box (IoU) is at least this much, and as good at the second value (draft, docs/test-plan.md section 5). */
+  iouHit: 0.5,
+  iouGood: 0.7,
   /** Per case: the median gap-edge error must be within this much (docs/m5-plan.md, criterion 3). */
   medianEdgePct: 1.5,
   /** Per case: at least this share of the runs must give the same number of entries (criterion 5). */
@@ -25,6 +28,14 @@ const toPx = (box, size) => ({
   x1: ((box.x + box.width) / 100) * size.width,
   y1: ((box.y + box.height) / 100) * size.height,
 });
+
+const iou = (a, b) => {
+  const w = Math.min(a[2], b[2]) - Math.max(a[0], b[0]);
+  const h = Math.min(a[3], b[3]) - Math.max(a[1], b[1]);
+  if (w <= 0 || h <= 0) return 0;
+  const inter = w * h;
+  return inter / ((a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter);
+};
 
 const median = (values) => {
   if (values.length === 0) return null;
@@ -42,6 +53,8 @@ export function scoreRun({ annotations, invalidCount, expect, notes, size }) {
   const measures = found.filter((a) => a.kind === "measure");
   const boxes = found.filter((a) => a.kind !== "measure");
   const usedMeasures = new Set();
+  const usedBoxes = new Set();
+  const targets = [];
   const gaps = [];
   const problems = [];
   let missing = 0;
@@ -87,6 +100,32 @@ export function scoreRun({ annotations, invalidCount, expect, notes, size }) {
         missing += 1;
         problems.push(`missing box in ${e.region.join(",")}`);
       }
+    } else if (e.type === "target") {
+      // A located element (ContextMark cases): the best unused box must overlap the truth box by at
+      // least iouHit (intersection over union, pixels of the original image).
+      const [tx0, ty0, tx1, ty1] = e.box;
+      let best = null;
+      for (const b of boxes) {
+        if (usedBoxes.has(b)) continue;
+        const p = toPx(b.box, size);
+        const v = iou([p.x0, p.y0, p.x1, p.y1], [tx0, ty0, tx1, ty1]);
+        if (!best || v > best.v) best = { b, v };
+      }
+      const v = best ? best.v : 0;
+      const ok = v >= THRESHOLDS.iouHit;
+      if (best && ok) usedBoxes.add(best.b);
+      targets.push({ iou: v, ok, good: v >= THRESHOLDS.iouGood });
+      if (!ok) {
+        missing += 1;
+        problems.push(`target ${e.box.join(",")}: best overlap ${v.toFixed(2)} (needs ${THRESHOLDS.iouHit})`);
+      }
+    } else if (e.type === "ambiguous") {
+      // Several elements fit the notes equally: the answer must be "ambiguous", not a guessed box.
+      if (!annotations.some((a) => a.status === "ambiguous")) {
+        missing += 1;
+        problems.push("expected an ambiguous entry");
+      }
+      if (boxes.length > 0) problems.push(`guessed ${boxes.length} box(es) where the target is ambiguous`);
     } else if (e.type === "absent") {
       // The notes name an element that is not in the image: it must be reported as not found. A
       // distance line is caught below as an extra one; boxes around other elements that the notes
@@ -122,6 +161,7 @@ export function scoreRun({ annotations, invalidCount, expect, notes, size }) {
     missing,
     extra,
     gaps,
+    targets,
     problems,
   };
 }
@@ -145,6 +185,7 @@ export function unitsNotKept(notes, annotations) {
 export function summarizeCase(runs) {
   const done = runs.filter((r) => !r.requestFailed);
   const edges = done.flatMap((r) => r.score.gaps.map((g) => g.edgePct));
+  const ious = done.flatMap((r) => (r.score.targets ?? []).map((t) => t.iou));
   const counts = done.map((r) => r.score.entries);
   const modal = counts.length
     ? Math.max(...[...new Set(counts)].map((c) => counts.filter((x) => x === c).length))
@@ -158,6 +199,8 @@ export function summarizeCase(runs) {
     invalid: done.reduce((n, r) => n + r.score.invalid, 0),
     medianEdgePct: median(edges),
     maxEdgePct: edges.length ? Math.max(...edges) : null,
+    medianIou: median(ious),
+    goodShare: ious.length ? ious.filter((v) => v >= THRESHOLDS.iouGood).length / ious.length : null,
     tightShare: edges.length ? edges.filter((e) => e <= THRESHOLDS.tightPct).length / edges.length : null,
   };
 }
