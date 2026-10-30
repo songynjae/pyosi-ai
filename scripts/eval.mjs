@@ -4,7 +4,7 @@
 //   node --experimental-strip-types scripts/eval.mjs                 dry run: lists the plan and the cost, sends nothing
 //   ... --replay .eval/<dir>                                         scores saved raw responses (free)
 //   ... --send [--cases D1,D3] [--runs 5]                            LIVE requests (cost; approve first)
-//   ... --set contextmark                                            the ContextMark cases instead of D1 to D10
+//   ... --set contextmark | text                                     the ContextMark cases or the text-heavy mock screens instead of D1 to D10
 //
 // It runs the app's own code on every answer: the request, parseModelOutput, mapping back from the
 // padded image, validation and pixel snapping on the original image. The browser's canvas
@@ -24,6 +24,7 @@ import { requestAnnotations } from "../lib/meta-client.ts";
 import { PROMPT_VERSION } from "../lib/prompts/annotate.ts";
 import { CASES as DISTANCE_CASES } from "../eval/cases.mjs";
 import { CM_CASES } from "../eval/cases-contextmark.mjs";
+import { TEXT_CASES } from "../eval/cases-text.mjs";
 import { decodePng, encodePng, padBelow, upscale2x } from "../eval/png.mjs";
 import { THRESHOLDS, caseVerdict, scoreRun, summarizeCase } from "../eval/score.mjs";
 
@@ -38,9 +39,9 @@ const runs = Number(value("--runs", 5));
 const only = value("--cases", null)?.split(",");
 // --set contextmark: the converted ContextMark cases (plain box notes, ambiguous and missing elements)
 const setName = value("--set", "distance");
-if (!["distance", "contextmark"].includes(setName)) throw new Error(`Unknown --set ${setName} (distance or contextmark)`);
-const isCm = setName === "contextmark";
-const CASES = isCm ? CM_CASES : DISTANCE_CASES;
+if (!["distance", "contextmark", "text"].includes(setName)) throw new Error(`Unknown --set ${setName} (distance, contextmark or text)`);
+const isCm = setName !== "distance"; // the sets scored by overlap (IoU) instead of gap edges
+const CASES = { distance: DISTANCE_CASES, contextmark: CM_CASES, text: TEXT_CASES }[setName];
 const stamp = new Date().toISOString().slice(0, 10);
 const outDir = resolve(root, value("--out", replayDir ?? `.eval/${stamp}-${PROMPT_VERSION}`));
 const COST_PER_REQUEST = 0.005;
