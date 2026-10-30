@@ -14,16 +14,38 @@ It is not an image analyzer: it does not describe what is in a picture. It start
 
 ## Try it
 
-- **Run it yourself** from this repository. It needs Node.js 20.9 or newer and npm, and your own Meta Model API key (the author's key is never in the repository). Steps below.
+- **Run it yourself** from this repository, with your own Meta Model API key (the author's key is never in the repository). Steps below.
 - **Hosted demo:** https://pyosi.netlify.app. Generate needs an invitation link with an access code. The code is not published in this repository, and the number of model requests is capped.
 
-```bash
-npm install
-echo "MODEL_API_KEY=your-key" > .env.local
-npm run dev
-```
+### Run it yourself
 
-Open http://localhost:3000. In development the access code is not needed. To run a production build on your own machine (`npm run build && npm start`), also put `ACCESS_CODES=off` in `.env.local` (in production the route refuses everything unless `ACCESS_CODES` is set).
+You need Node.js 20.9 or newer, npm, and a Meta Model API key.
+
+1. Get the code and install the dependencies:
+
+   ```bash
+   git clone https://github.com/songynjae/pyosi-ai.git
+   cd pyosi-ai
+   npm install
+   ```
+
+2. Connect your key. Create a file named `.env.local` in the project folder (it is git-ignored, so the key is never committed) with one line:
+
+   ```bash
+   echo "MODEL_API_KEY=paste-your-key-here" > .env.local
+   ```
+
+3. Start the app and open http://localhost:3000:
+
+   ```bash
+   npm run dev
+   ```
+
+4. Paste or drop a screenshot, write a note (for example "the delivery date looks wrong"), and press Generate.
+
+How the key is used: `MODEL_API_KEY` is read only by the server route (`app/api/annotate/route.ts`), never sent to the browser, and each Generate makes one request to Meta's chat completions endpoint with the standard `muse-spark-1.3` model. In development no access code is needed.
+
+If Generate says "The model API key is not configured on the server", check that `.env.local` is in the project folder and restart `npm run dev` (environment files are read when the server starts). To try a production build on your own machine (`npm run build && npm start`), also put `ACCESS_CODES=off` in `.env.local` (in production the route refuses everything unless `ACCESS_CODES` is set).
 
 ### Using the app
 
