@@ -15,7 +15,7 @@ It is not an image analyzer: it does not describe what is in a picture. It start
 ## Try it
 
 - **Run it yourself** from this repository, with your own Meta Model API key (the author's key is never in the repository). Steps below.
-- **Hosted demo:** https://pyosi.netlify.app. Generate needs an invitation link with an access code. The code is not published in this repository, and the number of model requests is capped.
+- **Hosted demo:** https://pyosi.netlify.app. Anyone can try it, no sign-in. The number of model requests for the whole deployment is capped; if the cap has been reached the demo stops with a message, and you can run it yourself with your own key (steps below).
 
 ### Run it yourself
 
@@ -94,7 +94,7 @@ Everything in Pyosi (code, evaluation harness, editing, export, distance lines) 
 
 ## Deployment
 
-The hosted demo runs on Netlify (`netlify.toml`; Netlify detects Next.js). Environment variables (set in the Netlify site settings, never in the repository): `MODEL_API_KEY`, `ACCESS_CODES` (a code per person), `RATE_LIMIT_TOTAL_PER_DAY`, `RATE_LIMIT_PER_CODE_PER_HOUR`, `MODEL_TIMEOUT_MS` (50000, because Netlify functions stop at 60 s), `TOTAL_REQUEST_CAP` and `BUDGET_EPOCH` (a hard cap on all model requests, see below).
+The hosted demo runs on Netlify (`netlify.toml`; Netlify detects Next.js). Environment variables (set in the Netlify site settings, never in the repository): `MODEL_API_KEY`, `ACCESS_CODES` (`off` on the public demo; otherwise a code per person), `RATE_LIMIT_TOTAL_PER_DAY`, `RATE_LIMIT_PER_CODE_PER_HOUR`, `MODEL_TIMEOUT_MS` (50000, because Netlify functions stop at 60 s), `TOTAL_REQUEST_CAP` and `BUDGET_EPOCH` (a hard cap on all model requests, see below).
 
 ## Data handling
 
@@ -122,7 +122,7 @@ The hosted demo runs on Netlify (`netlify.toml`; Netlify detects Next.js). Envir
 
 **Access control on a public deployment (added 2026-10-29)**
 
-`POST /api/annotate` needs an access code: `ACCESS_CODES` (environment variable, `name:code,name:code`) lists the valid codes, and the page sends the one from the invitation link `https://<site>/?code=<code>` in the `x-access-code` header. Each code and the whole site also have a call limit (`RATE_LIMIT_PER_CODE_PER_HOUR`, default 30; `RATE_LIMIT_TOTAL_PER_DAY`, default 400), counted in memory per server instance, which is a best-effort brake on a serverless host; the model account's own spending limit is the backstop. `TOTAL_REQUEST_CAP` (optional) is a hard cap on all model requests of the deployment: one counter in a Netlify Blobs store that every server instance shares, checked just before each paid request (a request that fails validation is not counted); when the cap is reached, or the counter cannot be read, the route answers 503; `BUDGET_EPOCH` starts a new count. The counter is read and then written, so simultaneous requests can overshoot the cap by a few. In production the route refuses everything when `ACCESS_CODES` is not set; `ACCESS_CODES=off` turns the check off (for running a production build on your own machine); in development (`npm run dev`) it is open. The screen tells users that their screenshot and notes are sent to Meta's model API.
+`POST /api/annotate` can require an access code (the public demo sets `ACCESS_CODES=off`, so it does not): `ACCESS_CODES` (environment variable, `name:code,name:code`) lists the valid codes, and the page sends the one from the invitation link `https://<site>/?code=<code>` in the `x-access-code` header. Each code and the whole site also have a call limit (`RATE_LIMIT_PER_CODE_PER_HOUR`, default 30; `RATE_LIMIT_TOTAL_PER_DAY`, default 400), counted in memory per server instance, which is a best-effort brake on a serverless host; the model account's own spending limit is the backstop. `TOTAL_REQUEST_CAP` (optional) is a hard cap on all model requests of the deployment: one counter in a Netlify Blobs store that every server instance shares, checked just before each paid request (a request that fails validation is not counted); when the cap is reached, or the counter cannot be read, the route answers 503; `BUDGET_EPOCH` starts a new count. The counter is read and then written, so simultaneous requests can overshoot the cap by a few. In production the route refuses everything when `ACCESS_CODES` is not set; `ACCESS_CODES=off` turns the check off (for running a production build on your own machine); in development (`npm run dev`) it is open. The screen tells users that their screenshot and notes are sent to Meta's model API.
 
 **Open items for the security check**
 
