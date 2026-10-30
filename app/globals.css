@@ -6,7 +6,9 @@
   --border: #dde1e8;
   --accent: #3b5bdb;
   --accent-text: #ffffff;
+  --accent-soft: #edf0ff;
   --callout: #e03131;
+  --shadow: 0 1px 2px rgba(22, 24, 29, 0.04), 0 4px 16px rgba(22, 24, 29, 0.05);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -18,7 +20,9 @@
     --border: #2b303a;
     --accent: #748ffc;
     --accent-text: #0f1115;
+    --accent-soft: #20253a;
     --callout: #ff6b6b;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.25);
   }
 }
 
@@ -35,9 +39,15 @@ body {
     system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
     sans-serif;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 button,
 textarea {
   font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }

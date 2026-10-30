@@ -277,10 +277,25 @@ export function Workspace() {
   return (
     <main className={styles.main}>
       <header className={styles.header}>
-        <h1>Pyosi</h1>
+        <h1>
+          <svg className={styles.logo} viewBox="0 0 32 32" aria-hidden="true">
+            <rect className={styles.logoBox} x="2" y="4" width="26" height="24" rx="6" />
+            <text className={styles.logoLetter} x="15" y="23" textAnchor="middle">
+              P
+            </text>
+            <circle className={styles.logoDot} cx="27" cy="6" r="5" />
+          </svg>
+          Pyosi
+        </h1>
         <p>
           Turn screenshots and rough notes into clear visual explanations.
         </p>
+        <ol className={styles.steps}>
+          <li>Add a screenshot</li>
+          <li>Write rough notes</li>
+          <li>Generate, then edit</li>
+          <li>Export a PNG</li>
+        </ol>
       </header>
 
       <div className={styles.grid}>
@@ -333,6 +348,9 @@ export function Workspace() {
             </div>
           ) : (
             <div className={styles.dropzone}>
+              <svg className={styles.dropIcon} viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3M12 4v11M7.5 8.5 12 4l4.5 4.5" />
+              </svg>
               <p className={styles.dropTitle}>
                 {dragging
                   ? "Drop the image here."
@@ -450,8 +468,7 @@ export function Workspace() {
             )
           )}
           <p className={styles.generateHint}>
-            Generate sends your screenshot and notes to Meta&apos;s Muse Spark model API. Pyosi does not store them.
-            Please don&apos;t upload confidential or personal information.
+            Your screenshot and notes are sent to Meta&apos;s Muse Spark model API to generate the annotations.
           </p>
           {generateError && (
             <p className={styles.error} role="alert">

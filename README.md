@@ -56,7 +56,7 @@ Open http://localhost:3000.
 
 **Who else sees the data**
 
-- **Meta (model API):** receives the screenshot and the notes of every Generate. How long Meta keeps them is set by Meta's terms, which have not been reviewed yet.
+- **Meta (model API):** receives the screenshot and the notes of every Generate. How long Meta keeps them is set by Meta's terms, which have not been reviewed yet. Please do not upload confidential or personal information to a demo.
 - **The hosting platform (Netlify, once deployed):** may keep request metadata or logs; Pyosi itself logs nothing.
 - **Voice input** is not part of the MVP and is not implemented, so no audio is captured or sent anywhere. (If it is added later with the browser's speech recognition, the browser vendor, for example Google in Chrome, would process the audio and Pyosi would not receive or store it.)
 
