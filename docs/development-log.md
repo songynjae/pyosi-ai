@@ -118,6 +118,22 @@ Newest entries first.
 - Deployment check at the end of the day (`https://pyosi.netlify.app`, after PRs #14 to #16): page 200; no code 401; the judges code with an empty form 400; a 4.3 MB upload refused with the app's 413 message; one real Generate on the Floraday screenshot answered in about 4.5 s (annotate.v12, one entry). Live requests of the day: 42 (about $0.21 of the $1 budget).
 - Left for the owner: the evening decisions listed in the summary of this session (making the repository public on Monday, the video, the form fields marked [owner], the beta, the Netlify badge, the author address in the history).
 
+## 2026-10-30: Plural references on text screens: "all the delivery dates", "every unit price" (12 live requests, about $0.06; the day's total 81 requests, about $0.41)
+**Status: measured; no code, prompt or app change. Why:** the review of the user interviews found that the cases where Pyosi should help most (several similar things at once, which cost the most to draw by hand) were the ones measured weakest (ContextMark CM9 "the card icons", the 8-item list). The text mock screens (`eval/fixtures/text/`, new truth markers added for the repeated items; the old truth boxes and PNGs are byte-identical) give a cleaner test. Cases in `eval/cases-plural.mjs` (`npm run eval -- --set plural`), prompt v12, 3 runs each; raw answers `.eval/2026-10-30-plural`.
+
+| case | note (no count given) | marked the right 3 items | all 3 within IoU 0.5 | median IoU | strict harness |
+|---|---|---|---|---|---|
+| P1 purchase order | "Highlight all the delivery dates." | 3 of 3 runs | 3 of 3 | 0.88 | 2/3 (wording: repeated description) |
+| P2 purchase order | "Highlight every unit price." | 2 of 3 (the third drew one box around the whole column) | 2 of 3 | 0.88 | 2/3 |
+| P3 invoice | "Highlight all the line amounts." | 3 of 3 | **0 of 3** | 0.05 | 0/3 |
+| P4 chat | "Highlight all of Anna's messages." | 3 of 3 | 3 of 3 | 0.98 | 2/3 (wording: repeated description) |
+
+- **Reading:** on text screens the model finds all the items of a kind in 11 of 12 runs and puts a box on each; this is better than the earlier "plural is weak" reading, which came from icon sets (CM9) and a long list (D7). Position: 8 of 12 runs have every box within overlap 0.5.
+- **P3 is a vertical offset, not a wrong element:** in all three runs the boxes sit about 14 px below the real amounts (for example y 171 to 190 for text at y 157 to 174 in an 800 px high image) and some boxes run to the edge of the column; the same model was exact on the other screens (1 to 2 px). Boxes of 17 px height have no tolerance for a 14 px shift, so the overlap is near zero. It is image-specific (a table with small text), repeatable, and is the same kind of offset as earlier distance-line offsets.
+- **P1 and P4 "fail" only on the wording rule** "repeated description": the three entries get near-identical descriptions because the user asked for the same thing three times; the prompt says to write one entry instead of repeating a point, which fits plural requests badly. Not changed.
+- **P2 run 3:** one box around the whole price column ("UNIT PRICE values") instead of three boxes: the group-box habit seen with "the card icons".
+- Limits: four cases on three mock screens (fake data), English, 3 runs; the interviewees' real documents are not covered.
+
 ## 2026-10-30: Why the export has three formats (written down afterwards; the rationale was not recorded when M4 was built)
 **Status: the M4 entry only says "user-approved scope: three formats". The reasons below are Claude's reading, not interview evidence; they are hypotheses.**
 - *Annotated* (the default): the marked image plus a short explanation per mark under it. Needs no other text: the numbers are explained inside the picture. Use it when several marks are sent without a message of your own, or for a ticket or a review.
