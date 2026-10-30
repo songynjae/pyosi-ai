@@ -170,7 +170,7 @@ Newest entries first.
 | CM10 | only one button, must not be ambiguous | 5/5 | 0.93 | |
 | CM11 | delete button that does not exist | 5/5 | | |
 
-- **What is solid:** a located element named or clearly implied by the note (CM1, CM2, CM6, CM7, CM10): median IoU 0.93 to 0.99 and 24 of 25 passing runs (the failure is a timeout). Elements that do not exist are reported as not found 15 of 15 runs (CM3, CM3b minus one timeout, CM11).
+- **What is solid:** a located element named or clearly implied by the note (CM1, CM2, CM6, CM7, CM10): median IoU 0.93 to 0.99 and 24 of 25 passing runs (the failure is a timeout). Elements that do not exist are reported as not found in 14 of 14 completed runs (CM3, CM3b minus one timeout, CM11).
 - **What is weak:** deciding between ambiguous and a guess (CM4, CM8: the model tends to commit to the most plausible element or to a group box), and a plural reference ("card icons", CM9: ambiguous or one merged box in 4 of 5 runs). Small icon boxes are less exact (CM5).
 - **Decision on CM4 and CM8 (owner, 2026-10-29), applied and rescored for free from the saved answers:** when the image itself points to a single element, "ambiguous" and a box on that element are both accepted (new expectation `ambiguousOr`, used for CM4: the only card in the hover state); with no such evidence (CM8) only "ambiguous" passes, and a box around the four cards stays a failure. Result: CM4 1/5 -> 4/5 (the 5th run boxed all four cards), overall **49 of 60 runs (82%); 49 of 57 (86%) without the 3 timeouts**. CM8 stays 2/5. Open point (2) below remains.
 - **Open point:** the timeouts: 3 of 60 requests (5%) timed out ("The model request timed out."); earlier runs had 1 "no content" in 30; the app does not retry (one request per Generate).
