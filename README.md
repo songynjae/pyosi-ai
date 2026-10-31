@@ -29,7 +29,7 @@ You need Node.js 20.9 or newer, npm, and a Meta Model API key.
    npm install
    ```
 
-2. Connect your key. Create a file named `.env.local` in the project folder (it is git-ignored, so the key is never committed) with one line:
+2. Connect your key. Get one at https://dev.meta.ai/ (open **API Keys** and create a key). Then create a file named `.env.local` in the project folder (it is git-ignored, so the key is never committed) with one line:
 
    ```bash
    echo "MODEL_API_KEY=paste-your-key-here" > .env.local
