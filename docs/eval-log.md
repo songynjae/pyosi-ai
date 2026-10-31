@@ -88,14 +88,14 @@ Raw responses: `.eval/t5-total-qty`, `.eval/t6-projects`, `.eval/t7-chat` (git-i
 | T7 (chat) | "...the message where she confirms the price, and the one where she promises the discount." | 3 | pass 3/3: price message IoU 0.98, discount `not_found` |
 
 
-## 2026-10-31, prompt annotate.v12: four more text cases (T8, T9, T11, T13; 12 live requests, about $0.06)
-Cases, notes and expectations were written into `eval/cases-text.mjs` before the run and were not changed afterwards. The first plan named a "shipping fee" for the invoice case, but the invoice has a "Freight, Busan" line, so T13 asks for a purchase order number instead (changed before any run). T10 and T12 of the plan were not added. Raw answers: `.eval/2026-10-31-t8-t13` (git-ignored).
+## 2026-10-31, prompt annotate.v12: four more text cases (T8 to T11; 12 live requests, about $0.06)
+Cases, notes and expectations were written into `eval/cases-text.mjs` before the run and were not changed afterwards. The first plan named a "shipping fee" for the invoice case, but the invoice has a "Freight, Busan" line, so T11 asks for a purchase order number instead (changed before any run). In the plan these cases were numbered T8, T9, T11 and T13; they are renumbered T8 to T11, and the raw answer files in `.eval/2026-10-31-t8-t13` carry the new numbers. Raw answers: `.eval/2026-10-31-t8-t13` (git-ignored).
 
 | Case | Note | Runs | Result |
 |---|---|---|---|
 | T8 (Atlas) | "The Archived badge is hard to notice." | 3 | pass 3/3, median IoU 0.93 |
 | T9 (Atlas) | "The Share button does not work." (six Share buttons) | 3 | pass 3/3: `ambiguous`, no box |
-| T11 (email) | "Please open the attachment that Min-jun sent and check it." (the email has no attachment) | 3 | pass 3/3: `not_found`, no box |
-| T13 (invoice) | "Please check the purchase order number on this invoice." (none on the invoice) | 3 | pass 3/3: `not_found`, no box |
+| T10 (email) | "Please open the attachment that Min-jun sent and check it." (the email has no attachment) | 3 | pass 3/3: `not_found`, no box |
+| T11 (invoice) | "Please check the purchase order number on this invoice." (none on the invoice) | 3 | pass 3/3: `not_found`, no box |
 
 12 of 12 runs pass. Only 3 runs per case and the cases are easy ones for a screen with plain text, so this shows the behaviour on these four notes, not a rate.
