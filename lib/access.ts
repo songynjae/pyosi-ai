@@ -1,6 +1,6 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 
-// Access control and a call limit for the public deployment (docs/m6-plan.md, section 2). Server side only.
+// Access control and a call limit for the public deployment. Server side only.
 // Every request must carry a code from ACCESS_CODES (one per tester, so one can be removed alone), and each
 // code and the whole site have a call limit. The limits are counted in memory: on a serverless host every
 // instance counts for itself, so they are a best-effort brake; the real backstop is the spending limit on

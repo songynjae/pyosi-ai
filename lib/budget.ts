@@ -1,4 +1,4 @@
-// A hard cap on the number of model requests for the whole deployment (docs/m6-plan.md, section 2).
+// A hard cap on the number of model requests for the whole deployment.
 // The call limits in lib/access.ts are counted per server instance; this one is a single counter that
 // every instance reads and writes (a Netlify Blobs store), so the spending cannot grow past
 // TOTAL_REQUEST_CAP requests whatever the access codes or the instance count. The model account itself
