@@ -69,7 +69,7 @@ If Generate says "The model API key is not configured on the server", check that
 
 Measured with the evaluation harness (`eval/`, `scripts/eval.mjs`; raw answers kept so any failure can be replayed), on fixed cases, several runs each. Details and the history are in [docs/eval-log.md](docs/eval-log.md), [docs/test-plan.md](docs/test-plan.md) and [docs/development-log.md](docs/development-log.md).
 
-- **Plain notes about a named or clearly implied element** (ContextMark cases CM1, CM2, CM6, CM7, CM10: test cases from my earlier discovery project, translated from Korean to English): median overlap with the hand-measured box (IoU) 0.93 to 0.99. A missing element was reported as "not found" in 14 of 14 completed runs (CM3, CM3b, CM11).
+- **Plain notes about a named or clearly implied element** (ContextMark cases CM1, CM2, CM6, CM7, CM10: test cases from my earlier abandoned project, translated from Korean to English): median overlap with the hand-measured box (IoU) 0.93 to 0.99. A missing element was reported as "not found" in 14 of 14 completed runs (CM3, CM3b, CM11).
 - **ContextMark set overall** (the same earlier-project cases): 49 of 60 runs pass (82%; 49 of 57 without the 3 requests that timed out).
 - **Small areas of text on mock screens** (a purchase order, an email, a chat, an invoice; fake data): a table cell and a whole message are marked tightly (median overlap 0.85 and 0.98); a phrase inside a sentence is in the right place but loose (0.60 on 18 px high text); "the total amount due" got the label and the value together where the reference answer was the value only.
 - **Full messages instead of rough notes** (greeting, several sentences, passing remarks): every completed run marked the right parts and nothing else; the strict wording check scored lower (6 of 15 runs) because polite requests are restated as statements.
@@ -90,7 +90,7 @@ Pyosi uses `muse-spark-1.3` (standard mode, not the `-contributor` model that tr
 
 ## Where the test material comes from
 
-Everything in Pyosi (code, evaluation harness, editing, export, distance lines) was built from 2026-10-27. The Floraday screenshot (`public/fixtures/floraday.png`, a screenshot of the author's own web app), its hand-measured boxes and the ContextMark test cases come from the author's earlier discovery repository ContextMark (first commit 2026-10-19). Some evaluation cases use screenshots that are not in this repository; they are skipped when the files are missing.
+Everything in Pyosi (code, evaluation harness, editing, export, distance lines) was built from 2026-10-27. Before that, I started exploring the idea in an earlier project, ContextMark (first commit 2026-10-19), and abandoned it during that exploration. It is a Python project, and none of its code, prompts or scoring were used in Pyosi. From it I took only test material: 12 test notes (translated from Korean to English), the screenshots they use (`public/fixtures/floraday.png` is a screenshot of my own web app) and the boxes I measured by hand. Some evaluation cases use screenshots that are not in this repository; they are skipped when the files are missing.
 
 ## Deployment
 

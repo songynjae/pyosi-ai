@@ -505,3 +505,6 @@ Driven in the browser (file picked, notes typed, Generate clicked); the page rec
 
 ## 2026-10-31: README marks the earlier-project test cases (documentation only, no live requests)
 - The hackathon runs from Oct 26 to Nov 4 and only work built in that time may be presented. ContextMark (first commit 2026-10-19) is outside it. The README's "How well does it work?" now says that the ContextMark cases are test cases from the author's earlier discovery project, translated from Korean to English. The harness, the other 26 cases (distance, text screens, messages, plural) and all code were built from 2026-10-27, so no case was replaced.
+
+## 2026-10-31: README says what ContextMark was and what was taken from it (documentation only, no live requests)
+- ContextMark was an earlier exploration of the idea that the owner abandoned during that exploration; the README no longer calls it a "discovery repository". Line 93 now says: it is a Python project, none of its code, prompts or scoring were used, and only test material was taken (12 notes translated from Korean, the screenshots they use, the hand-measured boxes). The basis for "no code used" is the records (Pyosi is TypeScript, the scoring was written new and differs) and a look at the file list of `~/Builder/contextmark`; the two code bases were not compared line by line.
