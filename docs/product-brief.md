@@ -32,7 +32,7 @@ Out of scope for the MVP:
 3. **Basic editing (done):** move, resize and delete boxes; edit label and description.
 4. **Export + accuracy (done):** PNG export (download and copy), distance lines for spacing notes, pixel snapping, padding of very wide images. Plan: `docs/m5-plan.md`.
 5. **Quality evaluation and stabilization:** results that are consistent enough to demo, measured on a fixed set of demo cases with repeated runs (`docs/m5-plan.md`, `docs/test-plan.md`).
-6. **Prepare and submit:** the hackathon form asks for a public GitHub repository and a 3-minute demo video (no deployed URL), plus text answers. Work: public-repository preparation (license, README with how to run and Data handling, known limits, review of docs and history), a stable demo path, the video, the form answers. A public deployment is not part of the plan (decided 2026-10-29); if one is added later, the API route needs access control and a rate limit first. Plan: `docs/m6-plan.md`. Feature freeze: Friday 2026-10-30; deadline 2026-11-04 21:00 ET.
+6. **Prepare and submit:** the hackathon form asks for a public GitHub repository and a 3-minute demo video (no deployed URL), plus text answers. Work: public-repository preparation (license, README with how to run and Data handling, known limits, review of docs and history), a stable demo path, the video, the form answers. A public deployment is not part of the plan (decided 2026-10-29); if one is added later, the API route needs access control and a rate limit first. Feature freeze: Friday 2026-10-30; deadline 2026-11-04 21:00 ET.
 
 ## Open questions
 - Which model/provider handles vision input?

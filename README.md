@@ -149,7 +149,7 @@ public/       Static files, including the Floraday test screenshot
 ## Docs
 
 - [Product brief](docs/product-brief.md)
-- [Test plan](docs/test-plan.md), [M5 plan](docs/m5-plan.md), [M6 plan](docs/m6-plan.md)
+- [Test plan](docs/test-plan.md), [M5 plan](docs/m5-plan.md)
 - [Evaluation log](docs/eval-log.md)
 - [Development log](docs/development-log.md)
 
