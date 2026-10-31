@@ -53,3 +53,8 @@ CLAUDE.local.md
 # Evaluation: raw model responses and private test images (may contain personal data)
 .eval/
 .eval-private/
+
+# Demo preparation (kept on the owner's machine only; earlier commits still contain them)
+docs/video-script.md
+docs/submission-answers.md
+docs/demo-assets/
