@@ -502,3 +502,6 @@ Driven in the browser (file picked, notes typed, Generate clicked); the page rec
 - Exporting with **Annotated** keeps a "not found" entry in the image's list as "(location not found)" (and "ambiguous" as "(location ambiguous)"); **Boxes only** and **Original image** have no list. Checked in `lib/export-image.ts`, not yet looked at in a downloaded image.
 - The Dell page screenshot used for the unscored try is kept only in `.eval-private/` (git-ignored).
 
+
+## 2026-10-31: README marks the earlier-project test cases (documentation only, no live requests)
+- The hackathon runs from Oct 26 to Nov 4 and only work built in that time may be presented. ContextMark (first commit 2026-10-19) is outside it. The README's "How well does it work?" now says that the ContextMark cases are test cases from the author's earlier discovery project, translated from Korean to English. The harness, the other 26 cases (distance, text screens, messages, plural) and all code were built from 2026-10-27, so no case was replaced.
