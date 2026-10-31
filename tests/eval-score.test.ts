@@ -124,7 +124,7 @@ describe("unitsNotKept and caseVerdict", () => {
   });
 });
 
-describe("scoreRun with located and ambiguous expectations (ContextMark cases)", () => {
+describe("scoreRun with located and ambiguous expectations (cases of the previous project)", () => {
   const found = (label: string, box: ReturnType<typeof pct>, status = "found") => ({
     id: label,
     label,

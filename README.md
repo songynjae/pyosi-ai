@@ -63,14 +63,14 @@ If Generate says "The model API key is not configured on the server", check that
 | `npm start` | Serve the production build |
 | `npm run lint` | Run ESLint |
 | `npm test` | Run the unit tests (Node's built-in runner; 185 tests; the model API is replaced by a fake `fetch`, so tests never call the network) |
-| `npm run eval` | Evaluation harness (dry run by default; `--send` makes live requests that cost money; `--replay <dir>` rescores saved answers for free; `--set contextmark` runs the ContextMark cases) |
+| `npm run eval` | Evaluation harness (dry run by default; `--send` makes live requests that cost money; `--replay <dir>` rescores saved answers for free; `--set previous` runs the cases from the previous discovery project) |
 
 ## How well does it work?
 
 Measured with the evaluation harness (`eval/`, `scripts/eval.mjs`; raw answers kept so any failure can be replayed), on fixed cases, several runs each. Details and the history are in [docs/eval-log.md](docs/eval-log.md), [docs/test-plan.md](docs/test-plan.md) and [docs/development-log.md](docs/development-log.md).
 
-- **Plain notes about a named or clearly implied element** (ContextMark cases CM1, CM2, CM6, CM7, CM10: test cases from my earlier abandoned project, translated from Korean to English): median overlap with the hand-measured box (IoU) 0.93 to 0.99. A missing element was reported as "not found" in 14 of 14 completed runs (CM3, CM3b, CM11).
-- **ContextMark set overall** (the same earlier-project cases): 49 of 60 runs pass (82%; 49 of 57 without the 3 requests that timed out).
+- **Plain notes about a named or clearly implied element** (cases CM1, CM2, CM6, CM7, CM10: test cases from my previous discovery project, translated from Korean to English): median overlap with the hand-measured box (IoU) 0.93 to 0.99. A missing element was reported as "not found" in 14 of 14 completed runs (CM3, CM3b, CM11).
+- **Previous-project set overall** (the same CM cases): 49 of 60 runs pass (82%; 49 of 57 without the 3 requests that timed out).
 - **Small areas of text on mock screens** (a purchase order, an email, a chat, an invoice; fake data): a table cell and a whole message are marked tightly (median overlap 0.85 and 0.98); a phrase inside a sentence is in the right place but loose (0.60 on 18 px high text); "the total amount due" got the label and the value together where the reference answer was the value only.
 - **"Not found" and "ambiguous" on text screens** (an email, an invoice and a page with six Share buttons; fake data; four cases, 3 runs each): 12 of 12 runs gave the expected answer: an email attachment and a purchase order number that are not on the screen were reported as "not found" with no box, "the Share button does not work" with six Share buttons was reported as "ambiguous", and the one Archived badge was marked (median overlap 0.93).
 - **Full messages instead of rough notes** (greeting, several sentences, passing remarks): every completed run marked the right parts and nothing else; the strict wording check scored lower (6 of 15 runs) because polite requests are restated as statements.
@@ -91,7 +91,7 @@ Pyosi uses `muse-spark-1.3` (standard mode, not the `-contributor` model that tr
 
 ## Where the test material comes from
 
-Everything in Pyosi (code, evaluation harness, editing, export, distance lines) was built from 2026-10-27. Before that, I started exploring the idea in an earlier project, ContextMark (first commit 2026-10-19), and abandoned it during that exploration. It is a Python project, and none of its code, prompts or scoring were used in Pyosi. From it I took only test material: 12 test notes (translated from Korean to English), the screenshots they use (`public/fixtures/floraday.png` is a screenshot of my own web app) and the boxes I measured by hand. Some evaluation cases use screenshots that are not in this repository; they are skipped when the files are missing.
+Everything in Pyosi (code, evaluation harness, editing, export, distance lines) was built from 2026-10-27. Before that, I started exploring the idea in a previous discovery project (first commit 2026-10-19), and abandoned it during that exploration. It is a Python project, and none of its code, prompts or scoring were used in Pyosi. From it I took only test material: 12 test notes (translated from Korean to English), the screenshots they use (`public/fixtures/floraday.png` is a screenshot of my own web app) and the boxes I measured by hand. Some evaluation cases use screenshots that are not in this repository; they are skipped when the files are missing.
 
 ## Deployment
 

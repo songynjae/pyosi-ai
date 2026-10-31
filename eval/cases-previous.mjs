@@ -1,4 +1,4 @@
-// The ContextMark cases converted for Pyosi (docs/test-plan.md, section 4). ContextMark is the owner's
+// The cases of the previous discovery project converted for Pyosi (docs/test-plan.md, section 4). That project is the owner's
 // earlier problem-discovery project (first commit 2026-10-19, before the hackathon); its test setup
 // has 12 cases on four screenshots of the owner's own Floraday web app, with boxes the owner
 // measured from the pixels (ground truth "gt_v2", approved 2026-10-22).
@@ -9,15 +9,15 @@
 //   ambiguous the notes fit several elements: the answer must be "ambiguous", not a guessed box
 //   ambiguousOr  as ambiguous, but a box on the one element the image points to is accepted too (CM4)
 //   absent    the named element is not in the screenshot: it must be reported as not found
-// Truth boxes are [x0, y0, x1, y1] in ORIGINAL image pixels (ContextMark's single-annotator ground truth).
+// Truth boxes are [x0, y0, x1, y1] in ORIGINAL image pixels (the previous project's single-annotator ground truth).
 // CM_Case_1_2 is the same file as public/fixtures/floraday.png; the other three screenshots show the
 // browser window (tab, address bar, profile picture, on one of them the macOS menu bar), so they stay
-// in .eval-private/contextmark/ (git-ignored) and the cases are skipped when the files are missing.
+// in .eval-private/previous/ (git-ignored) and the cases are skipped when the files are missing.
 
-const FLORADAY = { path: "public/fixtures/floraday.png" }; // ContextMark CM_Case_1_2
-const case3 = { path: ".eval-private/contextmark/CM_Case_3.png" };
-const case4 = { path: ".eval-private/contextmark/CM_Case_4.png" };
-const case5 = { path: ".eval-private/contextmark/CM_Case_5.png" };
+const FLORADAY = { path: "public/fixtures/floraday.png" }; // previous project, CM_Case_1_2
+const case3 = { path: ".eval-private/previous/CM_Case_3.png" };
+const case4 = { path: ".eval-private/previous/CM_Case_4.png" };
+const case5 = { path: ".eval-private/previous/CM_Case_5.png" };
 
 const BUTTON = [883, 1023, 1169, 1095]; // Choose Another Sky button on CM_Case_1_2
 const target = (box) => ({ type: "target", box });
@@ -63,7 +63,7 @@ export const CM_CASES = [
     image: case4,
     notes: "The hover effect isn't noticeable. Please check.",
     original: "Hover 효과가 두드러지지 않네요. 확인해주세요.",
-    // ContextMark marked this as the boundary case: one card (Rainy) is in the hover state, the notes do not
+    // The previous project marked this as the boundary case: one card (Rainy) is in the hover state, the notes do not
     // name it. Owner's rule (2026-10-29): when the image points to a single element, "ambiguous" and a box
     // on that element are both fine; a box anywhere else is a guess.
     expect: [{ type: "ambiguousOr", box: [1035, 765, 1285, 952] }],

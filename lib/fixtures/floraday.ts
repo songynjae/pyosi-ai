@@ -2,7 +2,7 @@ import type { Annotation } from "../types";
 
 // MANUAL FIXTURE (not model output): annotations for /fixtures/floraday.png,
 // a 2048x1124 screenshot of the Floraday page. The pixel boxes are the
-// human-measured ground truth from ContextMark's test case 2
+// human-measured ground truth from test case 2 of the previous project
 // (CM_Case_1_2.png, [x1, y1, x2, y2] in original-image pixels), converted to
 // Pyosi's percent boxes below.
 export const FLORADAY_IMAGE = {

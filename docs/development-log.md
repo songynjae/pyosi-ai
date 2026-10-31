@@ -113,13 +113,13 @@ Newest entries first.
 ## 2026-10-30: Demo-path check, drafts for the video and the form, repository preparation (41 live requests, about $0.205)
 **Status: LICENSE, README and `CLAUDE.md` merged (PR #15); `docs/video-script.md`, `docs/submission-answers.md` and `scripts/export-demo-images.mjs` are drafts for the owner's review.** Total of the day's live requests: 41 (5 on the deployment, 36 here), within the $1 budget.
 - Pre-publication review (read-only): no API key, access code or token in the tracked files or in the whole history (0 hits for the real values); no email addresses or phone numbers in tracked files; only `app/favicon.ico` and `public/fixtures/floraday.png` were ever tracked as images; the commit author address `songynjae@gmail.com` appears in 30 commits (GitHub's noreply address in 15); the development log names third-party pages used for testing (a Google search page, the Cursor editor, a Chrome toolbar) without images; `feat/gap-to-next` and one stash exist only on the owner's machine.
-- Demo-path check, 3 runs each, prompt v12, same code as the app: D3 3/3, D4 3/3, D6 3/3, D9 3/3, D10 3/3 (edge error at most 0.2%); ContextMark CM1, CM2, CM6, CM7, CM10 3/3 each (median IoU 0.93, 0.93, 0.98, 0.97, 0.96; the small button boxes of CM1 and CM2 are less exact: 67% and 50% of the boxes reach 0.7); D8 3/3. **D5 (a Refresh button that does not exist) 2/3:** in one run the model drew a distance line to another element instead of answering "not found"; so the video's "not found" scene uses the CM3 note on a cropped screenshot (5/5 earlier), not D5. Raw answers: `.eval/2026-10-30-demo*` (git-ignored).
+- Demo-path check, 3 runs each, prompt v12, same code as the app: D3 3/3, D4 3/3, D6 3/3, D9 3/3, D10 3/3 (edge error at most 0.2%); previous-project CM1, CM2, CM6, CM7, CM10 3/3 each (median IoU 0.93, 0.93, 0.98, 0.97, 0.96; the small button boxes of CM1 and CM2 are less exact: 67% and 50% of the boxes reach 0.7); D8 3/3. **D5 (a Refresh button that does not exist) 2/3:** in one run the model drew a distance line to another element instead of answering "not found"; so the video's "not found" scene uses the CM3 note on a cropped screenshot (5/5 earlier), not D5. Raw answers: `.eval/2026-10-30-demo*` (git-ignored).
 - `scripts/export-demo-images.mjs` writes the four synthetic images (D6, D7, D9, D10) to `docs/demo-assets/` (drawn by code, no real data).
 - Deployment check at the end of the day (`https://pyosi.netlify.app`, after PRs #14 to #16): page 200; no code 401; the judges code with an empty form 400; a 4.3 MB upload refused with the app's 413 message; one real Generate on the Floraday screenshot answered in about 4.5 s (annotate.v12, one entry). Live requests of the day: 42 (about $0.21 of the $1 budget).
 - Left for the owner: the evening decisions listed in the summary of this session (making the repository public on Monday, the video, the form fields marked [owner], the beta, the Netlify badge, the author address in the history).
 
 ## 2026-10-30: Plural references on text screens: "all the delivery dates", "every unit price" (12 live requests, about $0.06; the day's total 81 requests, about $0.41)
-**Status: measured; no code, prompt or app change. Why:** the review of the user interviews found that the cases where Pyosi should help most (several similar things at once, which cost the most to draw by hand) were the ones measured weakest (ContextMark CM9 "the card icons", the 8-item list). The text mock screens (`eval/fixtures/text/`, new truth markers added for the repeated items; the old truth boxes and PNGs are byte-identical) give a cleaner test. Cases in `eval/cases-plural.mjs` (`npm run eval -- --set plural`), prompt v12, 3 runs each; raw answers `.eval/2026-10-30-plural`.
+**Status: measured; no code, prompt or app change. Why:** the review of the user interviews found that the cases where Pyosi should help most (several similar things at once, which cost the most to draw by hand) were the ones measured weakest (previous-project CM9 "the card icons", the 8-item list). The text mock screens (`eval/fixtures/text/`, new truth markers added for the repeated items; the old truth boxes and PNGs are byte-identical) give a cleaner test. Cases in `eval/cases-plural.mjs` (`npm run eval -- --set plural`), prompt v12, 3 runs each; raw answers `.eval/2026-10-30-plural`.
 
 | case | note (no count given) | marked the right 3 items | all 3 within IoU 0.5 | median IoU | strict harness |
 |---|---|---|---|---|---|
@@ -186,7 +186,7 @@ Newest entries first.
 ## 2026-10-29: Netlify config, production check, and a review of the Korean content (no live requests)
 **Status: `netlify.toml` added (pins Node 22; the environment variables are listed in its comments, never their values). Merged under the owner's standing approval.**
 - Production build checked in an isolated worktree: `npm run build` passes (`/` static, `/api/annotate` dynamic, cacheComponents and partial prefetching on). The production server was started with `ACCESS_CODES` set and called over HTTP: page 200, no or wrong code 401, right code reaches the normal checks (400 for an empty form), third call within the hour 429 with the limit set to 2; without `ACCESS_CODES` the route answers 503 (fails closed). Still unchecked: the same on Netlify itself (the per-instance limits, the Next.js adapter, the 60 s function limit).
-- **Review of the Korean content for the judges (owner's question): kept, nothing deleted.** There are 21 lines in 6 tracked files: the prompt rule that the answer follows the language of the notes (with a Korean example), 12 Korean originals of the converted ContextMark cases (kept so the translation can be checked), two unit tests for CJK text wrapping and for `capitalizeFirst`, and notes in this log. Reasons: the judges read English and the hackathon is global, so a model answer in the user's own language is a feature, not a flaw; removing the prompt rule would change the prompt (a new version and a new measurement) for no gain; the tests and originals are labelled. What needed care was the claim: the README now says that other languages are accepted but only English notes are evaluated.
+- **Review of the Korean content for the judges (owner's question): kept, nothing deleted.** There are 21 lines in 6 tracked files: the prompt rule that the answer follows the language of the notes (with a Korean example), 12 Korean originals of the converted previous-project cases (kept so the translation can be checked), two unit tests for CJK text wrapping and for `capitalizeFirst`, and notes in this log. Reasons: the judges read English and the hackathon is global, so a model answer in the user's own language is a feature, not a flaw; removing the prompt rule would change the prompt (a new version and a new measurement) for no gain; the tests and originals are labelled. What needed care was the claim: the README now says that other languages are accepted but only English notes are evaluated.
 
 ## 2026-10-29: UI polish pass (CSS and light markup; no behaviour change, no new dependency, no live requests)
 **Status: done on branch `feat/ui-polish`, waiting for the owner's visual review (before and after screenshots in desktop and mobile widths, dark and light, empty and result states, taken with headless Chrome against the dev server with a stubbed model answer).**
@@ -219,7 +219,7 @@ Newest entries first.
 - Meta API: the documentation search confirms `reasoning_effort` ("none" is rejected) but did not show whether `temperature` or `seed` are accepted; to be tested with one small request.
 - Next (needs approval): prompt changes for items 1 and 2 (and unique descriptions), then re-run D1, D2, D5, D7, D8 three times each (about $0.075), and one small test of `temperature: 0`.
 
-## 2026-10-29: ContextMark cases measured (prompt v12, 60 live requests, about $0.30; total spent about $1.00)
+## 2026-10-29: Previous-project cases measured (prompt v12, 60 live requests, about $0.30; total spent about $1.00)
 **Status: first measurement of plain box notes, ambiguous and missing elements. 46 of 60 runs pass (77%); 46 of 57 (81%) if the 3 timed-out requests are left out. Raw responses: `.eval/2026-10-29-annotate.v12-cm` (git-ignored). No pass bar is applied to this set yet.**
 
 | case | what | pass (5 runs) | median IoU | notes |
@@ -228,7 +228,7 @@ Newest entries first.
 | CM2 | card + button in one note | 4/5 | 0.93 | 1 request timed out |
 | CM3 | refresh button that does not exist | 5/5 | | reported as not found every time |
 | CM3b | same, with its expected position | 4/5 | | 1 request timed out |
-| CM4 | "hover effect isn't noticeable" (boundary case) | 1/5 | | 4 runs boxed the Rainy card, which is the hovered one (IoU with the card of CM6 about 1); ContextMark itself marked this case as a boundary |
+| CM4 | "hover effect isn't noticeable" (boundary case) | 1/5 | | 4 runs boxed the Rainy card, which is the hovered one (IoU with the card of CM6 about 1); that project itself marked this case as a boundary |
 | CM5 | one icon is small | 4/5 | 0.87 | 1 request timed out; half of the boxes are below 0.7 |
 | CM6 | the hovered card | 5/5 | 0.98 | |
 | CM7 | a card named in the note | 5/5 | 0.99 | |
@@ -243,21 +243,21 @@ Newest entries first.
 - **Open point:** the timeouts: 3 of 60 requests (5%) timed out ("The model request timed out."); earlier runs had 1 "no content" in 30; the app does not retry (one request per Generate).
 - Not covered by these cases: other screen types (dark mode, mobile, dense UI), notes that are not about layout, and the English wording of the notes is a translation of the owner's Korean originals.
 
-## 2026-10-29: ContextMark cases converted for the evaluation harness (no live requests, no cost)
+## 2026-10-29: Previous-project cases converted for the evaluation harness (no live requests, no cost)
 **Status: converted and dry-run; not measured yet (a live run needs the owner's approval of the number of requests and the cost).**
-- `eval/cases-contextmark.mjs`: 12 cases (CM1 to CM11, CM3b) from ContextMark's test setup (the owner's own Floraday web app; ground truth "gt_v2" measured by the owner on 2026-10-22). Notes translated to English; the Korean originals are kept in the file. Expectations: `target` (box with IoU >= 0.5), `ambiguous`, `absent`.
-- `eval/score.mjs`: new expectation types `target` and `ambiguous`, IoU thresholds (draft), `targets` in the run score, `medianIou` and `goodShare` in the case summary. Existing scoring is unchanged. `scripts/eval.mjs --set contextmark` runs the set (no pass bar yet).
+- `eval/cases-previous.mjs`: 12 cases (CM1 to CM11, CM3b) from the previous project's test setup (the owner's own Floraday web app; ground truth "gt_v2" measured by the owner on 2026-10-22). Notes translated to English; the Korean originals are kept in the file. Expectations: `target` (box with IoU >= 0.5), `ambiguous`, `absent`.
+- `eval/score.mjs`: new expectation types `target` and `ambiguous`, IoU thresholds (draft), `targets` in the run score, `medianIou` and `goodShare` in the case summary. Existing scoring is unchanged. `scripts/eval.mjs --set previous` runs the set (no pass bar yet).
 - Checked with hand-made fake answers through the replay path: exact box, a box off the target, a missing element, an ambiguous answer and a four-box answer all score as intended. `npm test` 168 pass (6 new), `tsc` and `lint` pass.
-- Privacy: three of the four screenshots show the browser window (tab, address bar with a source query, a small profile picture, on one the macOS menu bar with the date and the status icons); they are kept in `.eval-private/contextmark/` (git-ignored) and are not committed. The fourth is `public/fixtures/floraday.png`.
+- Privacy: three of the four screenshots show the browser window (tab, address bar with a source query, a small profile picture, on one the macOS menu bar with the date and the status icons); they are kept in `.eval-private/previous/` (git-ignored) and are not committed. The fourth is `public/fixtures/floraday.png`.
 - Cost of a live run (not requested): 12 cases x 3 runs = 36 requests, about $0.18; x 5 runs = 60 requests, about $0.30.
 
 ## 2026-10-29: Test plan v2 and browser checks of editing and export (no code change, no cost)
 **Status: `docs/test-plan.md` rewritten (draft, awaiting the owner's approval of areas and case sources); the editing and export checks were run by Claude in the browser. One finding, nothing fixed.**
-- Why: the owner expected the tests to validate the whole annotation app; in practice 8 of 10 live cases were about distance lines and only one was a plain box note. The plan now names areas A to G (target identification, ambiguous/missing, screen variety, wording, consistency, distance lines, editing/export), lists case sources (existing D1 to D10, the ContextMark cases, new screenshots with ground truth read from the page) and a tuning / held-out split.
+- Why: the owner expected the tests to validate the whole annotation app; in practice 8 of 10 live cases were about distance lines and only one was a plain box note. The plan now names areas A to G (target identification, ambiguous/missing, screen variety, wording, consistency, distance lines, editing/export), lists case sources (existing D1 to D10, the previous-project cases, new screenshots with ground truth read from the page) and a tuning / held-out split.
 - Browser checks (stubbed model answer): move, resize, delete (key and button), text edit, badge overlap, export size and content, image sizes, narrow window all pass; error texts are understandable but technical; Copy was checked for data only. Details in `docs/test-plan.md` section 8.
 - **Finding:** the pixel snapping draws the Floraday card-to-button gap as 986 to 1050 px instead of the true 978 to 1023 px (the end enters the button), because the button's light grey outline is below `INK_DIFF`. The harness passes D3 anyway (its limits are about 82 px and 31 px here), so the thresholds need calibration against what a person sees as wrong. Fixing it changes visible behaviour: needs approval and a measurement on the distance cases.
 - Follow-up (offline, free): six snapping variants (move limit 12/8 px, ink threshold 20/15, faint-line rule, faint-line + limit) compared on 50 saved gaps and on shifted true gaps. None beat the current code on model answers (median 1 px, worst 76 px); the limits and thresholds lose the gains on D1, D2, D6, D9. The Floraday overshoot only appears when the model's value is already accurate. Snapping unchanged; recorded as a known limit. Details in `docs/test-plan.md` section 8.
-- Open: owner to approve the plan; ContextMark case conversion; a decision on `feat/gap-to-next` (v14 not merged, not pushed).
+- Open: owner to approve the plan; previous-project case conversion; a decision on `feat/gap-to-next` (v14 not merged, not pushed).
 
 ## 2026-10-29: M5 result: v14 full re-measurement against v10 and v11 (30 live requests, about $0.15; total spent about $0.70)
 **Status: M5 measurements are done. The `gap_to_next` structure (v14, branch `feat/gap-to-next`, committed `4c29de4`, not pushed, not merged) removes the invalid entries but is not better than v11/v12 overall, so it is not merged. `main` stays on v12.**
@@ -455,7 +455,7 @@ Driven in the browser (file picked, notes typed, Generate clicked); the page rec
 - Display numbers come from array order (list position), not from `id`. Annotations without a location keep their number in the list and leave a gap in the badges on the image.
 - The overlay draws only `found` annotations with a box. The list shows every valid annotation, adds a note for `ambiguous`/`not_found`, and shows invalid entries in a separate warning block.
 - Upload accepts PNG/JPEG up to 10 MB with specific messages (`lib/image-validation.ts`). This checks the browser-reported MIME type and size only.
-- Floraday fixture (`lib/fixtures/floraday.ts`, image in `public/fixtures/floraday.png`): "Lily card" and "Choose Another Sky button" use the human-measured pixel boxes from ContextMark test case 2, converted to percentages; "Refresh button" is `not_found` (no such control is visible in the screenshot).
+- Floraday fixture (`lib/fixtures/floraday.ts`, image in `public/fixtures/floraday.png`): "Lily card" and "Choose Another Sky button" use the human-measured pixel boxes from test case 2 of the previous project, converted to percentages; "Refresh button" is `not_found` (no such control is visible in the screenshot).
 - Tests: `npm test` (Node's built-in runner, no extra dependency), 32 tests for box validation, status/box consistency, partial success, upload validation and the fixtures.
 
 ### Verified
@@ -466,11 +466,11 @@ Driven in the browser (file picked, notes typed, Generate clicked); the page rec
 
 ### Remaining issues / decisions
 - Upload validation is client-side and trusts the MIME type. The future API route must re-check file contents (magic bytes) and size.
-- The Floraday fixture boxes come from ContextMark's single-annotator ground truth; the "Lily card" box is the whole card, which that project already noted as a judgment call.
+- The Floraday fixture boxes come from the previous project's single-annotator ground truth; the "Lily card" box is the whole card, which that project already noted as a judgment call.
 - Uploaded images still show the Orders sample's mock annotations, which will not line up with them (existing mock behaviour).
 - Model output coordinate format (pixels vs percent) and the prompts are still undecided. Prompts will live in their own version-controlled files once written.
 - Cleanup before submission: when the Meta API is integrated, remove the mock branch in `handleGenerate`, the Orders sample (`public/sample-screenshot.svg`, `lib/mock-annotations.ts`, its test line) and the "Mock mode" notice. Decide whether the Floraday fixture stays as a dev/test asset or is removed from the UI, and confirm the screenshot is OK to publish before making the repo public.
-- `ambiguous`/`not_found` with a box is treated as invalid (strict), unlike ContextMark which ignored the boxes with a warning.
+- `ambiguous`/`not_found` with a box is treated as invalid (strict), unlike the previous project, which ignored the boxes with a warning.
 
 ## 2026-10-27: Initial setup
 - Created the repository and the Next.js app (App Router, TypeScript, React, npm).
@@ -504,11 +504,11 @@ Driven in the browser (file picked, notes typed, Generate clicked); the page rec
 
 
 ## 2026-10-31: README marks the earlier-project test cases (documentation only, no live requests)
-- The hackathon runs from Oct 26 to Nov 4 and only work built in that time may be presented. ContextMark (first commit 2026-10-19) is outside it. The README's "How well does it work?" now says that the ContextMark cases are test cases from the author's earlier discovery project, translated from Korean to English. The harness, the other 26 cases (distance, text screens, messages, plural) and all code were built from 2026-10-27, so no case was replaced.
+- The hackathon runs from Oct 26 to Nov 4 and only work built in that time may be presented. The previous discovery project (first commit 2026-10-19) is outside it. The README's "How well does it work?" now says that the CM cases are test cases from the author's earlier discovery project, translated from Korean to English. The harness, the other 26 cases (distance, text screens, messages, plural) and all code were built from 2026-10-27, so no case was replaced.
 
-## 2026-10-31: README says what ContextMark was and what was taken from it (documentation only, no live requests)
-- ContextMark was an earlier exploration of the idea that the owner abandoned during that exploration; the README no longer calls it a "discovery repository". Line 93 now says: it is a Python project, none of its code, prompts or scoring were used, and only test material was taken (12 notes translated from Korean, the screenshots they use, the hand-measured boxes).
+## 2026-10-31: README says what the previous discovery project was and what was taken from it (documentation only, no live requests)
+- The previous discovery project was an earlier exploration of the idea that the owner abandoned during that exploration; the README no longer calls it a "discovery repository". Line 93 now says: it is a Python project, none of its code, prompts or scoring were used, and only test material was taken (12 notes translated from Korean, the screenshots they use, the hand-measured boxes).
 
 ## 2026-10-31: Four more text cases, T8 to T11 (12 live requests, about $0.06; the day's total about 111 requests, about $0.56)
-- Added to `eval/cases-text.mjs` at the owner's request, to have "ambiguous" and "not found" measured on screens made in this period (those answers had been measured only on the ContextMark cases). The cases were written before the run; T11 (first numbered T13) changed from "shipping" to "purchase order number" before any run because the invoice has a freight line. `t5-projects.html` got a `data-t` marker on the Delta "Archived" badge; the rendered PNG is byte-identical, only `truth.mjs` gained `t5_badge_delta`.
+- Added to `eval/cases-text.mjs` at the owner's request, to have "ambiguous" and "not found" measured on screens made in this period (those answers had been measured only on the previous-project cases). The cases were written before the run; T11 (first numbered T13) changed from "shipping" to "purchase order number" before any run because the invoice has a freight line. `t5-projects.html` got a `data-t` marker on the Delta "Archived" badge; the rendered PNG is byte-identical, only `truth.mjs` gained `t5_badge_delta`.
 - Result: 12 of 12 runs gave the expected answer (T8 median IoU 0.93; T9 `ambiguous`; T10 and T11 `not_found`, no box). Written to `docs/eval-log.md` and one README line. No code, prompt or app change.
