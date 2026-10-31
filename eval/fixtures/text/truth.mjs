@@ -101,5 +101,11 @@ export const TEXT_TRUTH = {
     189,
     692,
     221
+  ],
+  "t5_badge_delta": [
+    768,
+    97,
+    835,
+    118
   ]
 };

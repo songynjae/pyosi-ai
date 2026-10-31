@@ -59,4 +59,36 @@ export const TEXT_CASES = [
     notes: "Please look at the message where she confirms the price, and the one where she promises the discount.",
     expect: [target(T.t3_msg), { type: "absent" }],
   },
+  // T8 to T13: added 2026-10-31, written down before any run of them (cases, notes and expectations are not changed
+  // after seeing the answers). They add the "ambiguous" and "not found" answers on screens made in this period;
+  // T10 and T12 of the first plan were not added. T13 first named "shipping", but the invoice has a "Freight, Busan"
+  // line, so the note names a purchase order number, which the invoice does not contain.
+  {
+    id: "T8",
+    title: "A GUI with six similar cards: the one Archived badge",
+    image: img("t5-projects"),
+    notes: "The Archived badge is hard to notice.",
+    expect: [target(T.t5_badge_delta)],
+  },
+  {
+    id: "T9",
+    title: "A GUI with six similar cards: a Share button that could be any of six",
+    image: img("t5-projects"),
+    notes: "The Share button does not work.",
+    expect: [{ type: "ambiguous" }],
+  },
+  {
+    id: "T11",
+    title: "Email: an attachment the email does not have",
+    image: img("t2-email"),
+    notes: "Please open the attachment that Min-jun sent and check it.",
+    expect: [{ type: "absent" }],
+  },
+  {
+    id: "T13",
+    title: "Invoice: a purchase order number the invoice does not have",
+    image: img("t4-invoice"),
+    notes: "Please check the purchase order number on this invoice.",
+    expect: [{ type: "absent" }],
+  },
 ];
