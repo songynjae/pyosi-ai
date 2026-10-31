@@ -38,4 +38,25 @@ export const TEXT_CASES = [
     notes: "Highlight the total amount due.",
     expect: [target(T.t4_total)],
   },
+  {
+    id: "T5",
+    title: "Purchase order: the total quantity is missing (the total row has an amount but no quantity)",
+    image: img("t1-order"),
+    notes: "The total quantity is missing.",
+    expect: [{ type: "absent" }],
+  },
+  {
+    id: "T6",
+    title: "A GUI with six similar cards: one button and one badge named in a message",
+    image: img("t5-projects"),
+    notes: "Hi Austin, on the Projects page the Share button on the Delta card should be disabled because the project is archived. And the Harbor card says Draft, but it went live last week. Could you fix both?",
+    expect: [target(T.t5_share_delta), target(T.t5_badge_harbor)],
+  },
+  {
+    id: "T7",
+    title: "Chat: one message to mark and one the note mentions but the chat does not contain",
+    image: img("t3-chat"),
+    notes: "Please look at the message where she confirms the price, and the one where she promises the discount.",
+    expect: [target(T.t3_msg), { type: "absent" }],
+  },
 ];
