@@ -59,9 +59,9 @@ export const TEXT_CASES = [
     notes: "Please look at the message where she confirms the price, and the one where she promises the discount.",
     expect: [target(T.t3_msg), { type: "absent" }],
   },
-  // T8 to T13: added 2026-10-31, written down before any run of them (cases, notes and expectations are not changed
+  // T8 to T11: added 2026-10-31, written down before any run of them (cases, notes and expectations are not changed
   // after seeing the answers). They add the "ambiguous" and "not found" answers on screens made in this period;
-  // T10 and T12 of the first plan were not added. T13 first named "shipping", but the invoice has a "Freight, Busan"
+  // They were first numbered T8, T9, T11 and T13 in the plan; they are renumbered T8 to T11. T11 first named "shipping", but the invoice has a "Freight, Busan"
   // line, so the note names a purchase order number, which the invoice does not contain.
   {
     id: "T8",
@@ -78,14 +78,14 @@ export const TEXT_CASES = [
     expect: [{ type: "ambiguous" }],
   },
   {
-    id: "T11",
+    id: "T10",
     title: "Email: an attachment the email does not have",
     image: img("t2-email"),
     notes: "Please open the attachment that Min-jun sent and check it.",
     expect: [{ type: "absent" }],
   },
   {
-    id: "T13",
+    id: "T11",
     title: "Invoice: a purchase order number the invoice does not have",
     image: img("t4-invoice"),
     notes: "Please check the purchase order number on this invoice.",
