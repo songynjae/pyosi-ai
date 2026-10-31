@@ -38,7 +38,7 @@ Until 2026-10-29 the live measurements (M5 baseline, prompts v10 to v14) covered
 
 **Tuning and held-out sets.** Cases are split into a *tuning* set (used while changing prompts) and a *held-out* set (looked at only for the final check). Roughly 12 + 8 for areas A to E, plus the existing D1 to D10.
 
-**Known bias.** The same person (Claude) writes the cases and the prompts. The held-out split and the use of previous-project cases (made earlier by the owner) are the counter-measures.
+**Known bias.** The same assistant (Claude) writes the cases and the prompts. To reduce this, some cases are not used while changing prompts and are used only for the final check.
 
 ## 5. Procedure (L3) and criteria
 1. `npm run eval` loads the case set and calls the same code as the route; dry run by default, `--send` makes live requests and needs the owner's approval of the number of requests and the cost beforehand (about $0.005 each; about 60 requests, roughly $0.30, is the proposed size for areas A to E).
