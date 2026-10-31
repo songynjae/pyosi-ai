@@ -4,7 +4,8 @@
 // data-t="..." to eval/fixtures/text/truth.mjs. The boxes come from the page itself, not from eyeballing.
 // Developer tool (macOS Chrome path); the PNGs and truth.mjs are committed, so the evaluation does not need it.
 //
-//   node scripts/make-text-fixtures.mjs
+//   node scripts/make-text-fixtures.mjs                  all screens
+//   node scripts/make-text-fixtures.mjs t5-projects.html  only the named screens (their boxes are merged into truth.mjs)
 
 import { spawn } from "node:child_process";
 import { mkdtempSync, readdirSync, writeFileSync } from "node:fs";
@@ -31,8 +32,9 @@ const pending = new Map();
 ws.onmessage = (m) => { const d = JSON.parse(m.data); if (d.id && pending.has(d.id)) { pending.get(d.id)(d); pending.delete(d.id); } };
 const send = (method, params = {}) => new Promise((res) => { const i = ++id; pending.set(i, res); ws.send(JSON.stringify({ id: i, method, params })); });
 
-const truth = {};
-for (const file of readdirSync(dir).filter((f) => f.endsWith(".html")).sort()) {
+const only = process.argv.slice(2);
+const truth = only.length ? { ...(await import(join(dir, "truth.mjs"))).TEXT_TRUTH } : {};
+for (const file of readdirSync(dir).filter((f) => f.endsWith(".html") && (!only.length || only.includes(f))).sort()) {
   const name = file.replace(/\.html$/, "");
   await send("Emulation.setDeviceMetricsOverride", { width: 1200, height: 800, deviceScaleFactor: 1, mobile: false });
   await send("Page.navigate", { url: `file://${join(dir, file)}` });

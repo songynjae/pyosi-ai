@@ -77,3 +77,13 @@ Overall 21/30 runs pass. Raw responses: .eval/2026-10-29-annotate.v14-full (git-
 | D8 | 3/3 | 2-4 | 0 | 0.2% | 0.2% |
 | D9 | 3/3 | 5-5 | 0 | 0.0% | 0.0% |
 | D10 | 3/3 | 2-2 | 0 | 0.1% | 0.1% |
+
+## 2026-10-30, prompt annotate.v12: mock GUI, chat and "not found" notes (text set, T5 to T7)
+Raw responses: `.eval/t5-total-qty`, `.eval/t6-projects`, `.eval/t7-chat` (git-ignored). 9 live requests, about $0.045. Criteria were fixed before each run; nothing was changed after seeing results.
+
+| case | notes | runs | result |
+|---|---|---|---|
+| T5 | "The total quantity is missing." (purchase order, no quantity total) | 3 | pass 3/3: `not_found`, no box |
+| T6 (Atlas, six similar cards) | message: Share button on the Delta card and the Draft badge on the Harbor card | 3 + 3 | both targets in 6/6 runs, within 1 to 2 px, median IoU 0.92 and 0.93; 1 of 6 also boxed two whole cards; strict harness 0/6 (polite question restated) |
+| T7 (chat) | "...the message where she confirms the price, and the one where she promises the discount." | 3 | pass 3/3: price message IoU 0.98, discount `not_found` |
+

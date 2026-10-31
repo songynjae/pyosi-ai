@@ -89,5 +89,17 @@ export const TEXT_TRUTH = {
     346,
     1044,
     364
+  ],
+  "t5_badge_harbor": [
+    471,
+    97,
+    515,
+    118
+  ],
+  "t5_share_delta": [
+    631,
+    189,
+    692,
+    221
   ]
 };

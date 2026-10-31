@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 1200px; font: 14px/1.4 -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; color: #1f2937; background: #f3f4f6; }
+  .app { display: flex; min-height: 800px; }
+  .side { width: 200px; background: #111827; color: #d1d5db; padding: 20px 14px; }
+  .brand { color: #fff; font-weight: 700; font-size: 16px; margin: 0 8px 22px; }
+  .nav a { display: block; padding: 9px 10px; border-radius: 6px; margin-bottom: 2px; color: #d1d5db; }
+  .nav a.on { background: #374151; color: #fff; }
+  .main { flex: 1; padding: 22px 28px; }
+  .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  h1 { font-size: 22px; margin: 0; }
+  .search { width: 240px; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; background: #fff; color: #9ca3af; }
+  .new { padding: 8px 14px; border-radius: 6px; background: #2563eb; color: #fff; font-weight: 600; }
+  .row { display: flex; gap: 10px; align-items: center; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; }
+  .card h2 { font-size: 16px; margin: 0; }
+  .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .badge { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+  .live { background: #dcfce7; color: #166534; }
+  .draft { background: #fef3c7; color: #92400e; }
+  .arch { background: #e5e7eb; color: #4b5563; }
+  .desc { color: #6b7280; margin: 0 0 12px; }
+  .stats { display: flex; gap: 18px; color: #6b7280; font-size: 13px; margin-bottom: 14px; }
+  .stats b { color: #111827; }
+  .btns { display: flex; gap: 8px; }
+  .btn { padding: 6px 12px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; font-size: 13px; }
+  .btn.primary { background: #2563eb; border-color: #2563eb; color: #fff; }
+  .btn.danger { color: #b91c1c; border-color: #fecaca; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="side">
+    <div class="brand">Atlas</div>
+    <div class="nav">
+      <a class="on">Projects</a><a>Reports</a><a>Team</a><a>Billing</a><a>Settings</a>
+    </div>
+  </div>
+  <div class="main">
+    <div class="top">
+      <h1>Projects</h1>
+      <div class="row"><div class="search">Search projects</div><div class="new">New project</div></div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="head"><h2>Harbor</h2><span class="badge draft" data-t="t5_badge_harbor">Draft</span></div>
+        <p class="desc">Warehouse tracking for the Busan site.</p>
+        <div class="stats"><span><b>12</b> members</span><span><b>48</b> tasks</span></div>
+        <div class="btns"><span class="btn primary">Open</span><span class="btn">Share</span><span class="btn danger">Delete</span></div>
+      </div>
+      <div class="card">
+        <div class="head"><h2>Delta</h2><span class="badge arch">Archived</span></div>
+        <p class="desc">Component sourcing, closed last quarter.</p>
+        <div class="stats"><span><b>7</b> members</span><span><b>0</b> tasks</span></div>
+        <div class="btns"><span class="btn primary">Open</span><span class="btn" data-t="t5_share_delta">Share</span><span class="btn danger">Delete</span></div>
+      </div>
+      <div class="card">
+        <div class="head"><h2>Birch</h2><span class="badge live">Live</span></div>
+        <p class="desc">Customer onboarding flow.</p>
+        <div class="stats"><span><b>9</b> members</span><span><b>31</b> tasks</span></div>
+        <div class="btns"><span class="btn primary">Open</span><span class="btn">Share</span><span class="btn danger">Delete</span></div>
+      </div>
+      <div class="card">
+        <div class="head"><h2>Cobalt</h2><span class="badge live">Live</span></div>
+        <p class="desc">Internal reporting dashboard.</p>
+        <div class="stats"><span><b>5</b> members</span><span><b>22</b> tasks</span></div>
+        <div class="btns"><span class="btn primary">Open</span><span class="btn">Share</span><span class="btn danger">Delete</span></div>
+      </div>
+      <div class="card">
+        <div class="head"><h2>Maple</h2><span class="badge draft">Draft</span></div>
+        <p class="desc">Mobile app redesign.</p>
+        <div class="stats"><span><b>14</b> members</span><span><b>63</b> tasks</span></div>
+        <div class="btns"><span class="btn primary">Open</span><span class="btn">Share</span><span class="btn danger">Delete</span></div>
+      </div>
+      <div class="card">
+        <div class="head"><h2>Orion</h2><span class="badge live">Live</span></div>
+        <p class="desc">Support ticket automation.</p>
+        <div class="stats"><span><b>6</b> members</span><span><b>17</b> tasks</span></div>
+        <div class="btns"><span class="btn primary">Open</span><span class="btn">Share</span><span class="btn danger">Delete</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
