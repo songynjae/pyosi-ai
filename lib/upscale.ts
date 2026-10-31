@@ -61,7 +61,8 @@ export type Prepared = {
 
 /**
  * The copy of the image that is sent to the model: very wide images get white
- * padding below, up to 2:1, and small images are upscaled 2x, in one drawing step.
+ * padding below, up to 2:1, tall phone-shaped images white padding on the right,
+ * up to a square, and small images are upscaled 2x, in one drawing step.
  * Anything else is sent as it is. Any failure falls back to the original file
  * with no padding, so Generate still works.
  */

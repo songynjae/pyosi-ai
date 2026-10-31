@@ -24,12 +24,34 @@ describe("planPad", () => {
     });
   });
 
-  it("leaves normal and tall images alone", () => {
+  it("leaves normal images and very tall ones alone", () => {
     assert.equal(planPad({ width: 2048, height: 1124 }), null); // Floraday, 1.8:1
     assert.equal(planPad({ width: 1668, height: 678 }), null); // 2.46:1
-    assert.equal(planPad({ width: 750, height: 1624 }), null);
-    assert.equal(planPad({ width: 400, height: 1600 }), null); // tall: untested, not padded
     assert.equal(planPad({ width: 1000, height: 400 }), null); // exactly 2.5:1
+    assert.equal(planPad({ width: 1080, height: 1920 }), null); // 16:9 phone, 1.78:1: untested, not padded
+    assert.equal(planPad({ width: 500, height: 1000 }), null); // exactly 1:2
+    assert.equal(planPad({ width: 400, height: 1600 }), null); // 1:4 tall: untested, not padded
+    assert.equal(planPad({ width: 500, height: 1501 }), null); // just over 1:3
+  });
+
+  it("pads a tall phone screenshot on the right, up to a square", () => {
+    // The phone screens of the experiment: 390x844 (2.16:1).
+    assert.deepEqual(planPad({ width: 390, height: 844 }), {
+      original: { width: 390, height: 844 },
+      width: 844,
+      height: 844,
+      offsetX: 0,
+      offsetY: 0,
+    });
+    assert.deepEqual(planPad({ width: 750, height: 1624 }), {
+      original: { width: 750, height: 1624 },
+      width: 1624,
+      height: 1624,
+      offsetX: 0,
+      offsetY: 0,
+    });
+    assert.ok(planPad({ width: 500, height: 1001 })); // just over 1:2
+    assert.ok(planPad({ width: 500, height: 1500 })); // exactly 1:3
   });
 
   it("pads just above the limit and ignores invalid sizes", () => {
@@ -60,6 +82,27 @@ describe("mapBoxFromPadded", () => {
 
   it("is the identity in x for a wide image", () => {
     near(mapBoxFromPadded({ x: 12.5, y: 50, width: 7, height: 4 }, plan).x, 12.5);
+  });
+});
+
+describe("mapBoxFromPadded for a tall image padded on the right", () => {
+  const plan = planPad({ width: 390, height: 844 })!;
+
+  it("maps a box in the square copy back to the original image", () => {
+    // The settings icon of the phone screen: [328, 791, 354, 817] in the original, in percent of the 844 px wide copy.
+    const mapped = mapBoxFromPadded(
+      { x: (328 / 844) * 100, y: (791 / 844) * 100, width: (26 / 844) * 100, height: (26 / 844) * 100 },
+      plan,
+    );
+    near(mapped.x, (328 / 390) * 100);
+    near(mapped.y, (791 / 844) * 100);
+    near(mapped.width, (26 / 390) * 100);
+    near(mapped.height, (26 / 844) * 100);
+  });
+
+  it("a box on the padding falls outside the image, so it is reported as invalid", () => {
+    const mapped = mapBoxFromPadded({ x: 60, y: 10, width: 10, height: 10 }, plan);
+    assert.ok(mapped.x > 100);
   });
 });
 
@@ -133,6 +176,34 @@ describe("prepareImage", () => {
     assert.deepEqual(d.calls[0].size, { width: 3000, height: 1500 });
     assert.deepEqual(d.calls[0].placement, { x: 0, y: 0, width: 3000, height: 800 });
     assert.equal(out.file.name, "bar-padded.png");
+  });
+
+  it("pads a tall phone screenshot on the right and upscales it, in one drawing step", async () => {
+    const d = deps({ width: 390, height: 844 }, 5000);
+    const out = await prepareImage(png(10, "phone.png"), d);
+    assert.equal(d.calls.length, 1);
+    assert.deepEqual(d.calls[0].size, { width: 1688, height: 1688 });
+    assert.deepEqual(d.calls[0].placement, { x: 0, y: 0, width: 780, height: 1688 });
+    assert.equal(out.file.name, "phone-padded-2x.png");
+    assert.equal(out.pad?.width, 844);
+    assert.equal(out.pad?.height, 844);
+  });
+
+  it("pads a large tall phone screenshot without upscaling it", async () => {
+    const d = deps({ width: 1170, height: 2532 }, 5000);
+    const out = await prepareImage(png(), d);
+    assert.deepEqual(d.calls[0].size, { width: 2532, height: 2532 });
+    assert.deepEqual(d.calls[0].placement, { x: 0, y: 0, width: 1170, height: 2532 });
+    assert.equal(out.file.name, "bar-padded.png");
+  });
+
+  it("sends a very tall image unchanged", async () => {
+    const d = deps({ width: 400, height: 1600 }, 5000);
+    const file = png();
+    const out = await prepareImage(file, d);
+    assert.equal(out.file, file);
+    assert.equal(out.pad, null);
+    assert.equal(d.calls.length, 0);
   });
 
   it("upscales a small normal image with no padding, as before", async () => {

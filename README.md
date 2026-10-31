@@ -51,7 +51,7 @@ If Generate says "The model API key is not configured on the server", check that
 
 1. In the **Screenshot** area, drag and drop a PNG/JPEG file (up to 4 MB) onto the page, paste one from the clipboard (⌘V / Ctrl+V), or click **Choose file**. **New image** clears the image, notes and annotations.
 2. Type some rough notes (required, up to 4,000 characters).
-3. Click **Generate**. Numbered callouts and bounding boxes appear over the screenshot, and annotations without a location are listed below it. Each Generate sends one request to the model API (a few tenths of a cent). Screenshots under 1400 px on the long side are upscaled 2x in the browser first, and very wide ones get white padding below; both give more accurate boxes, and only the copy sent to the model is changed.
+3. Click **Generate**. Numbered callouts and bounding boxes appear over the screenshot, and annotations without a location are listed below it. Each Generate sends one request to the model API (a few tenths of a cent). Screenshots under 1400 px on the long side are upscaled 2x in the browser first, very wide ones get white padding below, and tall phone-shaped ones (between 2:1 and 3:1) get white padding on the right; these give more accurate boxes, and only the copy sent to the model is changed.
 4. Click a box to move, resize or delete it; use **Edit** in the list to change the text; use **Export** to download or copy a PNG.
 
 ### Scripts
@@ -79,7 +79,8 @@ Measured with the evaluation harness (`eval/`, `scripts/eval.mjs`; raw answers k
 **Known limits** (also what the demo does not claim):
 - Deciding between "ambiguous" and a guess: the model tends to commit to the most plausible element, or to one box around a group.
 - Plural references: "the card icons" is often answered as ambiguous or with one merged box; on text screens "all the delivery dates" or "every unit price" worked in most runs (the right items in 11 of 12 runs, every box within overlap 0.5 in 8 of 12), with one run that drew a single box around a whole column and one screen where the boxes sat about 14 px too low.
-- Long lists (8 items in a column) and small icon boxes are less exact.
+- Long lists (8 items in a column) were the weakest distance case (0 of 5 runs); with the padding for tall images a synthetic list of 8 passed 5 of 5 runs (one case, 5 runs). Small icon boxes are less exact.
+- Tall phone screenshots (390x844, two made-up apps, 3 runs per case): without padding the vertical position of a box varied by tens of pixels from run to run (19 of 48 runs passed). The app now sends tall images between 2:1 and 3:1 with white padding on the right (30 of 48 runs pass), but small or thin targets (a dashed goal line, an icon among others) still often miss. A 16:9 phone screen and images taller than 3:1 are sent as before and were not tested; "not found", "ambiguous" and a gap between two elements worked either way.
 - On light grey outlines on a white background the snapping can move a distance line's end into the neighbouring element (up to about 27 px on the sample card and button).
 - About 5% of the model requests time out (the app sends one request per Generate and does not retry).
 - Only English notes are evaluated. Notes in other languages are accepted and answered in the same language, but that is not measured.

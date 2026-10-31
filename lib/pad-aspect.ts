@@ -8,9 +8,15 @@ import type { BoxPercent } from "./types";
 // were within 3 px. The padded copy is only what the model sees: boxes it
 // returns are mapped back to the original image here, so nothing else changes.
 //
-// Only wide images are padded: tall ones were never tested.
+// Tall phone screenshots (390x844, 2.16:1) gave boxes whose vertical position
+// varied by tens of pixels from run to run. Sent with white padding on the right
+// up to a square, 18 of 24 runs on a screen not used to choose the method passed
+// against 10 of 24 without (docs/eval-log.md, 2026-10-31). Only images between
+// 2:1 and 3:1 tall were tested; taller ones are sent as before.
 export const PAD_ABOVE_ASPECT = 2.5;
 export const PAD_TARGET_ASPECT = 2;
+export const PAD_TALL_ABOVE_ASPECT = 2;
+export const PAD_TALL_UP_TO_ASPECT = 3;
 
 export type Size = { width: number; height: number };
 
@@ -18,26 +24,32 @@ export type Size = { width: number; height: number };
 export type PadPlan = {
   /** Size of the original image. */
   original: Size;
-  /** Size of the padded image (same width, taller). */
+  /** Size of the padded image (taller for a wide image, wider for a tall one). */
   width: number;
   height: number;
   offsetX: number;
   offsetY: number;
 };
 
-/** The padding to send, or null when the image is not wide enough to need it. */
+/** The padding to send, or null when the image does not need it. */
 export function planPad(original: Size): PadPlan | null {
   const { width, height } = original;
   if (!(width > 0 && height > 0)) return null;
-  if (width / height <= PAD_ABOVE_ASPECT) return null;
-  const paddedHeight = Math.round(width / PAD_TARGET_ASPECT);
-  return {
-    original,
-    width,
-    height: paddedHeight,
-    offsetX: 0,
-    offsetY: 0,
-  };
+  if (width / height > PAD_ABOVE_ASPECT) {
+    return {
+      original,
+      width,
+      height: Math.round(width / PAD_TARGET_ASPECT),
+      offsetX: 0,
+      offsetY: 0,
+    };
+  }
+  const tall = height / width;
+  if (tall > PAD_TALL_ABOVE_ASPECT && tall <= PAD_TALL_UP_TO_ASPECT) {
+    // A square, with the image at the left.
+    return { original, width: height, height, offsetX: 0, offsetY: 0 };
+  }
+  return null;
 }
 
 /** A box in percent of the padded image -> percent of the original image. May fall outside 0-100 when the model boxed the padding. */

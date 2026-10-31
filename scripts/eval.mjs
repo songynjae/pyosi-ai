@@ -27,7 +27,7 @@ import { CM_CASES } from "../eval/cases-previous.mjs";
 import { TEXT_CASES } from "../eval/cases-text.mjs";
 import { MESSAGE_CASES } from "../eval/cases-message.mjs";
 import { PLURAL_CASES } from "../eval/cases-plural.mjs";
-import { decodePng, encodePng, padBelow, upscale2x } from "../eval/png.mjs";
+import { decodePng, encodePng, padTo, upscale2x } from "../eval/png.mjs";
 import { THRESHOLDS, caseVerdict, scoreRun, summarizeCase } from "../eval/score.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -55,11 +55,11 @@ function loadCase(c) {
   return existsSync(path) ? decodePng(path) : null;
 }
 
-/** What the app would send: pad below if very wide, then 2x if small. */
+/** What the app would send: white padding if very wide or phone-shaped tall, then 2x if small. */
 function prepare(original) {
   const size = { width: original.width, height: original.height };
   const pad = planPad(size);
-  let img = pad ? padBelow(original, pad.height) : original;
+  let img = pad ? padTo(original, pad.width, pad.height) : original;
   if (planUpscale(size)) img = upscale2x(img);
   return { pad, sent: img, bytes: new Uint8Array(encodePng(img)) };
 }
@@ -97,7 +97,7 @@ for (const p of prepared) {
   }
   const sentSize = `${p.sent.width}x${p.sent.height}`;
   console.log(
-    `${p.c.id.padEnd(3)} original ${p.original.width}x${p.original.height}  sends ${sentSize}${p.pad ? " (padded below)" : ""}  expects ${p.c.expect.length}  ${p.c.title}`,
+    `${p.c.id.padEnd(3)} original ${p.original.width}x${p.original.height}  sends ${sentSize}${p.pad ? " (padded)" : ""}  expects ${p.c.expect.length}  ${p.c.title}`,
   );
 }
 const ready = prepared.filter((p) => p.original);

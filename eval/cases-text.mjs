@@ -91,4 +91,126 @@ export const TEXT_CASES = [
     notes: "Please check the purchase order number on this invoice.",
     expect: [{ type: "absent" }],
   },
+  // T12 to T19: a phone screenshot (390x844) of a made-up weight-tracking app (eval/fixtures/text/t6-weight.html, fake
+  // data), added 2026-10-31. Cases, notes and expectations were written before any run of them and are not changed
+  // after seeing the answers. They add a chart, icons without labels, a tall image and a gap on a phone screen; tall
+  // images had never been tested (lib/pad-aspect.ts). The goal line is marked together with its label because the line
+  // alone is 2 px high. The gap is measured from the bottom of the Add weight button to the top of the tab bar.
+  {
+    id: "T12",
+    title: "Weight app (phone): the settings icon in the tab bar, icons without labels",
+    image: img("t6-weight"),
+    notes: "The settings icon is hard to find.",
+    expect: [target(T.t6_settings)],
+  },
+  {
+    id: "T13",
+    title: "Weight app (phone): the dashed goal line with its label",
+    image: img("t6-weight"),
+    notes: "The goal line and its label are too faint.",
+    expect: [target(T.t6_goal)],
+  },
+  {
+    id: "T14",
+    title: "Weight app (phone): the tooltip on the chart",
+    image: img("t6-weight"),
+    notes: "The weight shown in the chart tooltip looks like a typo.",
+    expect: [target(T.t6_tooltip)],
+  },
+  {
+    id: "T15",
+    title: "Weight app (phone): the big number and the latest entry",
+    image: img("t6-weight"),
+    notes: "The big number does not match the latest entry.",
+    expect: [target(T.t6_big), target(T.t6_last_entry)],
+  },
+  {
+    id: "T16",
+    title: "Weight app (phone): the gap between the Add weight button and the tab bar",
+    image: img("t6-weight"),
+    notes: "The gap between the Add weight button and the tab bar is too big.",
+    expect: [{ type: "gap", axis: "vertical", box: [16, 626, 374, 780] }],
+  },
+  {
+    id: "T17",
+    title: "Weight app (phone): an edit icon that appears three times",
+    image: img("t6-weight"),
+    notes: "The edit icon is too small.",
+    expect: [{ type: "ambiguous" }],
+  },
+  {
+    id: "T18",
+    title: "Weight app (phone): a calorie summary the screen does not have",
+    image: img("t6-weight"),
+    notes: "Please check the calorie summary.",
+    expect: [{ type: "absent" }],
+  },
+  {
+    id: "T19",
+    title: "Weight app (phone): a message about the selected tab and the Add weight button",
+    image: img("t6-weight"),
+    notes: "Hi Mia, on the weight screen the selected tab should be 1W, not 1M. And the Add weight button should be bigger. Could you fix both?",
+    expect: [target(T.t6_tab_1m), target(T.t6_add)],
+  },
+  // T20 to T27: a second phone screenshot (390x844), a made-up sleep app (eval/fixtures/text/t7-sleep.html, fake data),
+  // added 2026-10-31 as a held-out check of the tall-image experiment on T12 to T19 (docs/eval-log.md): the same kinds
+  // of notes on a screen that was not used to choose how a tall image is sent. Cases, notes and expectations were
+  // written before any run of them and are not changed after seeing the answers. The gap is measured from the bottom
+  // of the Log sleep button to the top of the tab bar.
+  {
+    id: "T20",
+    title: "Sleep app (phone): the profile icon in the tab bar, icons without labels",
+    image: img("t7-sleep"),
+    notes: "The profile icon is hard to find.",
+    expect: [target(T.t7_profile)],
+  },
+  {
+    id: "T21",
+    title: "Sleep app (phone): the dashed goal line with its label",
+    image: img("t7-sleep"),
+    notes: "The goal line and its label are too faint.",
+    expect: [target(T.t7_goal)],
+  },
+  {
+    id: "T22",
+    title: "Sleep app (phone): the tooltip on the chart",
+    image: img("t7-sleep"),
+    notes: "The time shown in the chart tooltip looks like a typo.",
+    expect: [target(T.t7_tooltip)],
+  },
+  {
+    id: "T23",
+    title: "Sleep app (phone): the big number and the Deep sleep card",
+    image: img("t7-sleep"),
+    notes: "Please check the big number and the Deep sleep card.",
+    expect: [target(T.t7_big), target(T.t7_deep)],
+  },
+  {
+    id: "T24",
+    title: "Sleep app (phone): the gap between the Log sleep button and the tab bar",
+    image: img("t7-sleep"),
+    notes: "The gap between the Log sleep button and the tab bar is too big.",
+    expect: [{ type: "gap", axis: "vertical", box: [16, 680, 374, 780] }],
+  },
+  {
+    id: "T25",
+    title: "Sleep app (phone): an arrow icon that appears three times",
+    image: img("t7-sleep"),
+    notes: "The arrow icon is too small.",
+    expect: [{ type: "ambiguous" }],
+  },
+  {
+    id: "T26",
+    title: "Sleep app (phone): a heart rate graph the screen does not have",
+    image: img("t7-sleep"),
+    notes: "Please check the heart rate graph.",
+    expect: [{ type: "absent" }],
+  },
+  {
+    id: "T27",
+    title: "Sleep app (phone): a message about the selected tab and the Log sleep button",
+    image: img("t7-sleep"),
+    notes: "Hi Sam, on the sleep screen the selected tab should be Month, not Week. And the Log sleep button should be bigger. Could you fix both?",
+    expect: [target(T.t7_week), target(T.t7_add)],
+  },
 ];
