@@ -42,12 +42,12 @@ Sources checked 2026-10-29: docs.netlify.com (functions limits, rate limiting) a
 | 4 | Demo video script: scenes, what is on screen, what is said, 3 minutes; checklist for recording | Claude writes it; the owner records | none |
 | 5 | Form answers: project description, use of Meta products (Muse Spark 1.3 through Meta Model API: vision, grounding, structured output), why Meta's models matter | Claude drafts; the owner reviews and submits | none |
 | 7 | Netlify deployment (section 2): access code and call limit on the route, payload and timeout settings, notice text, deploy preview test, production deploy, test on the deployed site; optional beta testing afterwards | Claude implements and tests (live requests need approved amounts); the owner owns the Netlify account, the environment variables and the Meta-side limit | live requests for the tests, amount stated first |
-| 6 | General box-note accuracy (areas A and B of `docs/test-plan.md`): convert the ContextMark cases, then one measured run | Claude; the live run needs approval | about $0.15 to $0.30 |
+| 6 | General box-note accuracy (areas A and B of `docs/test-plan.md`): convert the previous-project cases, then one measured run | Claude; the live run needs approval | about $0.15 to $0.30 |
 
 ## 4. Schedule
 | When | Work |
 |---|---|
-| Thursday 2026-10-29 | Done: ContextMark cases converted and measured (49 of 60 runs pass), PR #10 merged. Open: the owner's choices for item 7 |
+| Thursday 2026-10-29 | Done: the previous-project cases converted and measured (49 of 60 runs pass), PR #10 merged. Open: the owner's choices for item 7 |
 | Friday 2026-10-30 | Morning: item 7 first (route protection, settings, deploy preview), then item 1 (demo path, live runs with approved amounts). Afternoon: production deploy and test, item 3 (repository preparation), README, freeze. Item 2 (UI polish) shrinks to the screens that appear in the video, and is cut first if time runs out. Optional beta: invitations go out Friday evening only if the deployment is stable. The owner reviews the visuals and the script |
 | Saturday and Sunday | No work |
 | Monday 2026-11-02 | The owner records the video; fixes only for bugs seen while recording; make the repository public after the owner's approval |
@@ -72,7 +72,7 @@ Not asked, done as part of item 3: bringing `CLAUDE.md` "Current state" up to da
 
 ## 7. Risks
 - **"Simple image analyzer" is on the list of projects to avoid.** Pyosi must not be presented as one. What it is: a workflow from rough notes to editable, exportable annotated screenshots; spatial grounding with measured accuracy; distance lines whose positions are snapped to the real pixels; editing and export; an evaluation harness with fixed cases and saved raw responses. The description and the video lead with that, with the measured limits stated (see below).
-- **Existing-project rule (low risk, one sentence).** Pyosi is a separate solution built from 2026-10-27. Floraday is the owner's own web app and the screenshot was taken by the owner (confirmed 2026-10-29). The Floraday screenshot and its hand-measured boxes (and, if used, the ContextMark test cases) come from the owner's earlier problem-discovery repository ContextMark (first commit 2026-10-19). The README names that source in one sentence so the original contribution is not unclear.
+- **Existing-project rule (low risk, one sentence).** Pyosi is a separate solution built from 2026-10-27. Floraday is the owner's own web app and the screenshot was taken by the owner (confirmed 2026-10-29). The Floraday screenshot and its hand-measured boxes (and, if used, the previous-project test cases) come from the owner's earlier problem-discovery repository (first commit 2026-10-19). The README names that source in one sentence so the original contribution is not unclear.
 - **Contributors.** Solo project: the contributor is the owner. Whether to mention that Claude Code helped write the code is the owner's choice; the FAQ does not require it.
 - **The demo shows only the cases that work.** The README states the known limits (weak cases D2 and D7, one distance-line overshoot on light grey outlines) and the measured results (`docs/eval-log.md`), so a reviewer who runs the app is not surprised.
 - **General box accuracy is not yet measured** (item 6). If it is poor, the demo and the description say what Pyosi does reliably (distance lines on plain backgrounds, boxes on clear elements) instead of claiming more.

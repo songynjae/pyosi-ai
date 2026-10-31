@@ -1,6 +1,6 @@
 // Plural references: "all the delivery dates", "every unit price" (the user-interview review of 2026-10-30).
 // Pointing at several similar things at once is where drawing the marks by hand costs the most, and where the
-// earlier measurements were weakest (ContextMark CM9, "the card icons": mostly "ambiguous" or one merged box;
+// earlier measurements were weakest (case CM9 of the previous project, "the card icons": mostly "ambiguous" or one merged box;
 // the 8-item list D7). The notes do not say how many there are. Same mock screens and truth boxes as the
 // text-heavy set (eval/fixtures/text/). Scoring: `target` per item (IoU 0.5; each box is used once), so a case
 // passes only when every item is marked. Run with `npm run eval -- --set plural`.

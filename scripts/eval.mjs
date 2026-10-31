@@ -4,7 +4,7 @@
 //   node --experimental-strip-types scripts/eval.mjs                 dry run: lists the plan and the cost, sends nothing
 //   ... --replay .eval/<dir>                                         scores saved raw responses (free)
 //   ... --send [--cases D1,D3] [--runs 5]                            LIVE requests (cost; approve first)
-//   ... --set contextmark | text | message | plural                                  the ContextMark cases or the text-heavy mock screens instead of D1 to D10
+//   ... --set previous | text | message | plural                                      the previous-project cases or the text-heavy mock screens instead of D1 to D10
 //
 // It runs the app's own code on every answer: the request, parseModelOutput, mapping back from the
 // padded image, validation and pixel snapping on the original image. The browser's canvas
@@ -23,7 +23,7 @@ import { refineAnnotations } from "../lib/refine-gap.ts";
 import { requestAnnotations } from "../lib/meta-client.ts";
 import { PROMPT_VERSION } from "../lib/prompts/annotate.ts";
 import { CASES as DISTANCE_CASES } from "../eval/cases.mjs";
-import { CM_CASES } from "../eval/cases-contextmark.mjs";
+import { CM_CASES } from "../eval/cases-previous.mjs";
 import { TEXT_CASES } from "../eval/cases-text.mjs";
 import { MESSAGE_CASES } from "../eval/cases-message.mjs";
 import { PLURAL_CASES } from "../eval/cases-plural.mjs";
@@ -39,11 +39,11 @@ const send = flag("--send");
 const replayDir = value("--replay", null);
 const runs = Number(value("--runs", 5));
 const only = value("--cases", null)?.split(",");
-// --set contextmark: the converted ContextMark cases (plain box notes, ambiguous and missing elements)
+// --set previous: the converted cases of the previous discovery project (plain box notes, ambiguous and missing elements)
 const setName = value("--set", "distance");
-if (!["distance", "contextmark", "text", "message", "plural"].includes(setName)) throw new Error(`Unknown --set ${setName} (distance, contextmark, text, message or plural)`);
+if (!["distance", "previous", "text", "message", "plural"].includes(setName)) throw new Error(`Unknown --set ${setName} (distance, previous, text, message or plural)`);
 const isCm = setName !== "distance"; // the sets scored by overlap (IoU) instead of gap edges
-const CASES = { distance: DISTANCE_CASES, contextmark: CM_CASES, text: TEXT_CASES, message: MESSAGE_CASES, plural: PLURAL_CASES }[setName];
+const CASES = { distance: DISTANCE_CASES, previous: CM_CASES, text: TEXT_CASES, message: MESSAGE_CASES, plural: PLURAL_CASES }[setName];
 const stamp = new Date().toISOString().slice(0, 10);
 const outDir = resolve(root, value("--out", replayDir ?? `.eval/${stamp}-${PROMPT_VERSION}`));
 const COST_PER_REQUEST = 0.005;
@@ -169,7 +169,7 @@ const overall = totalRuns ? totalPass / totalRuns : 0;
 console.log("");
 if (isCm) {
   console.log(`Overall: ${totalPass}/${totalRuns} runs pass (${(overall * 100).toFixed(0)}%). No bar is applied to this set yet (thresholds are drafts: docs/test-plan.md sections 5 and 6).`);
-  if (flag("--report")) console.log("--report is not used for the contextmark set (add the result to docs/eval-log.md by hand after review).");
+  if (flag("--report")) console.log("--report is not used for the previous set (add the result to docs/eval-log.md by hand after review).");
   process.exit(0);
 }
 console.log(`Overall: ${totalPass}/${totalRuns} runs pass (${(overall * 100).toFixed(0)}%), bar ${(THRESHOLDS.overallPassRate * 100).toFixed(0)}% overall and ${(THRESHOLDS.casePassRate * 100).toFixed(0)}% per demo case (draft: docs/m5-plan.md).`);

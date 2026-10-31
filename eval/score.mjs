@@ -101,7 +101,7 @@ export function scoreRun({ annotations, invalidCount, expect, notes, size }) {
         problems.push(`missing box in ${e.region.join(",")}`);
       }
     } else if (e.type === "target") {
-      // A located element (ContextMark cases): the best unused box must overlap the truth box by at
+      // A located element (cases of the previous project): the best unused box must overlap the truth box by at
       // least iouHit (intersection over union, pixels of the original image).
       const [tx0, ty0, tx1, ty1] = e.box;
       let best = null;

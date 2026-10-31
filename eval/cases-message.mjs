@@ -1,7 +1,7 @@
 // Message-style notes (the owner's idea of 2026-10-30: people often write the message they would send with
 // a screenshot and want to know which parts of the screenshot it is about). The notes here are full messages,
 // with a greeting, several sentences and mentions of things that are not on the screen, instead of the short
-// rough notes of the other sets. Images and truth boxes are the ones of the ContextMark Floraday screenshot
+// rough notes of the other sets. Images and truth boxes are the ones of the Floraday screenshot of the previous project
 // and of the text-heavy mock screens (eval/fixtures/text/). Scoring: `target` (IoU), `absent` (not found).
 // Run with `npm run eval -- --set message`. Entries beyond the expected ones are visible in the entries
 // column and in the raw answers: a mark for something the message only mentions in passing is an error
