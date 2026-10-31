@@ -235,8 +235,8 @@ export function Workspace() {
       const file = imageFile;
       if (!file) throw new Error("No image selected.");
 
-      // Small screenshots are sent at 2x and very wide ones with white padding for
-      // more accurate boxes (lib/upscale.ts); padded boxes are mapped back below.
+      // Small screenshots are sent at 2x, very wide and tall phone-shaped ones with white padding,
+      // for more accurate boxes (lib/upscale.ts); padded boxes are mapped back below.
       const prepared = await prepareImage(file);
       const form = new FormData();
       form.set("image", prepared.file);

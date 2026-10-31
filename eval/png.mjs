@@ -136,6 +136,13 @@ export function padBelow(img, newHeight) {
   return out;
 }
 
+/** White padding to the right and below: the image stays at the top left (a tall image padded to a square). */
+export function padTo(img, newWidth, newHeight) {
+  const out = blank(newWidth, newHeight, [255, 255, 255]);
+  for (let y = 0; y < img.height; y++) out.data.set(img.data.subarray(y * img.width * 4, (y + 1) * img.width * 4), y * newWidth * 4);
+  return out;
+}
+
 /** 2x bilinear upscale (the browser uses its own smoothing; close enough for the model). */
 export function upscale2x(img) {
   const out = blank(img.width * 2, img.height * 2, [0, 0, 0]);
