@@ -34,4 +34,4 @@ TypeScript, Next.js (App Router), React, Node.js runtime for API routes. npm. Pl
 - Annotation boxes are percentages (0-100) of the image size and are `null` unless status is `found`. Validate with `parseAnnotations()` in `lib/annotation-schema.ts`; invalid entries are reported, never clamped or turned into `not_found`. See `lib/types.ts`.
 - Never commit secrets. API keys go in `.env.local` (git-ignored); read them only in server code (API routes), never in client components.
 - Next.js here is a recent major version. Check `node_modules/next/dist/docs/` before relying on older conventions.
-- Update `docs/development-log.md` when finishing a meaningful piece of work.
+- Update `docs/development-log.md` when a decision is made or a lesson is learned: add a row to the decisions table (section 2) or a lesson (section 3). Show the user the text you would add and get their approval before adding it.

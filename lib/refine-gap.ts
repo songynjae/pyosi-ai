@@ -1,7 +1,8 @@
 import type { Annotation, BoxPercent, MeasureAxis } from "./types";
 
 // The model finds the items around a gap well but its boxes are a few pixels
-// loose (see docs/development-log.md), which moves a distance line off the
+// loose (see docs/development-log.md, section 2,
+// distance notes), which moves a distance line off the
 // real gap. Here the line's ends are snapped to the real edges of the two
 // neighbouring items by looking at the pixels of the original image. When the
 // image is not plain enough to be sure, the model's values are kept.

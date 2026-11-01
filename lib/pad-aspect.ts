@@ -2,8 +2,8 @@ import type { BoxPercent } from "./types";
 
 // Very wide screenshots (e.g. a browser toolbar, 3.45:1) gave boxes that were
 // too tall and shifted sideways; the same image with white padding up to 2:1
-// fixed the horizontal error (see docs/development-log.md, root-cause
-// experiments). The padding goes below the image only: with padding above it
+// fixed the horizontal error (see docs/development-log.md, section 2,
+// padding). The padding goes below the image only: with padding above it
 // every box came back about 13 px too low, with padding below only all edges
 // were within 3 px. The padded copy is only what the model sees: boxes it
 // returns are mapped back to the original image here, so nothing else changes.

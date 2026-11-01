@@ -1,7 +1,7 @@
 import { MAX_IMAGE_BYTES } from "./image-validation.ts";
 import { planPad, type PadPlan } from "./pad-aspect.ts";
 
-// Small screenshots gave noisy boxes (see docs/development-log.md, M2.2-C):
+// Small screenshots gave noisy boxes (see docs/development-log.md, section 2, enlarging small images):
 // at 2x the same pixels were accurate and repeatable in every case tried.
 // Boxes are percentages, so the overlay is unaffected by the size we send.
 export const UPSCALE_BELOW_LONG_SIDE = 1400;
