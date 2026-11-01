@@ -8,6 +8,7 @@ import {
   layoutList,
   measureMarks,
   pixelBox,
+  valueLabelCenter,
   wrapText,
 } from "../lib/export-image.ts";
 import type { Annotation } from "../lib/types.ts";
@@ -189,5 +190,23 @@ describe("measureMarks", () => {
     assert.deepEqual(marks.line, { x1: 16, y1: 20, x2: 16, y2: 80 });
     assert.deepEqual(marks.caps[0], { x1: 10, y1: 20, x2: 22, y2: 20 });
     assert.deepEqual(marks.caps[1], { x1: 10, y1: 80, x2: 22, y2: 80 });
+  });
+});
+
+describe("valueLabelCenter", () => {
+  const m = exportMetrics(700);
+
+  it("keeps the value on the middle of a horizontal line", () => {
+    assert.deepEqual(valueLabelCenter({ x: 140, y: 60 }, "horizontal", 30, m), { x: 140, y: 60 });
+  });
+
+  it("puts the value left of a vertical line, clear of the badge on its right", () => {
+    const line = { x: 100, y: 200 };
+    const width = 30;
+    const label = valueLabelCenter(line, "vertical", width, m);
+    assert.equal(label.y, 200);
+    assert.ok(label.x + width / 2 <= line.x - 6, "the label ends 6 px before the line");
+    const badge = badgeCenter({ x: 98, y: 190, width: 4, height: 20 }, "right", m, { width: 700, height: 500 });
+    assert.ok(label.x + width / 2 < badge.x - m.badge / 2, "the label ends before the badge starts");
   });
 });
