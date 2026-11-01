@@ -1,6 +1,6 @@
 # Pyosi
 
-**Pyosi identifies the part of a screenshot you are talking about, and marks it.** Write or paste the message you would send with the screenshot ("the delivery date on the second line looks wrong", "the card and the button are too close"), and Pyosi works out which parts you mean, marks them with numbered boxes, draws the distance when you talk about the space between two things, and says "not found" or "ambiguous" instead of guessing when it cannot tell. Each mark has a short explanation you can edit, and the marked image can be exported as a PNG. Built for the Meta Global AI Developer Hackathon (Indie Developer Track, "Build for Your World"), with Meta's Muse Spark model through the Meta Model API.
+**Pyosi identifies the part of a screenshot you are talking about, and marks it.** Write or paste the message you would send with the screenshot ("the delivery date on the second line looks wrong", "the card and the button are too close"), and Pyosi works out which parts you mean, marks them with numbered boxes, draws the distance when you talk about the space between two things, and says "not found" when a part is not on the screen and "ambiguous" when several parts fit, instead of guessing. Each mark has a short explanation you can edit, and the marked image can be exported as a PNG. Built for the Meta Global AI Developer Hackathon (Indie Developer Track, "Build for Your World"), with Meta's Muse Spark model through the Meta Model API.
 
 It is not an image analyzer: it does not describe what is in a picture. It starts from what the person says and answers one question, "which part is that?", with positions that are checked against the pixels and an evaluation harness that measures how often the marks are right.
 
@@ -149,7 +149,7 @@ public/       Static files, including the Floraday test screenshot
 ## Docs
 
 - [Product brief](docs/product-brief.md)
-- [Test plan](docs/test-plan.md), [M5 plan](docs/m5-plan.md)
+- [Test plan](docs/test-plan.md), [Evaluation plan (M5)](docs/m5-plan.md)
 - [Evaluation log](docs/eval-log.md)
 - [Development log](docs/development-log.md)
 

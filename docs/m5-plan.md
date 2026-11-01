@@ -15,7 +15,7 @@ Pass bar: at least 90% of runs overall and at least 4 of 5 runs for every case w
 
 **How the harness applies them** (`eval/score.mjs`, since 2026-10-29): criteria 1, 2 and 4 decide whether a single run passes (a run also fails on an extra distance line, a missing expected entry, a gap more than 4% of the long side off, a distance line more than 3% off across, a repeated description, a question that lost its question mark, or a number with a unit from the notes that is missing). Criteria 3 and 5 are checked per case: the median gap-edge error must be at most 1.5% and the entry count must be the same in at least 80% of the runs. A case meets the bar when at least 80% of its runs pass and 3 and 5 hold; the whole set meets it when at least 90% of all runs pass and every case meets the bar.
 
-## 2. What trial and error already taught us (from `docs/development-log.md`)
+## 2. What trial and error already taught us
 | Observed | Evidence | Status |
 |---|---|---|
 | Run-to-run variance in positions, same image and prompt | gap edges off by 0 to 23 px between runs; line height 0 to 19 px low | pixel snapping fixes it where the background is plain (offline: edge error 11 px to 4 px); untested on other UIs |
