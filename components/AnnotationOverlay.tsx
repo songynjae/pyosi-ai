@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, PointerEvent } from "react";
-import { badgePlacement } from "@/lib/badge-placement";
+import { badgePlacement, placeBadges, type BadgePlacement } from "@/lib/badge-placement";
 import { separateBadges } from "@/lib/badge-layout";
 import { applyDrag, type DragMode, type ResizeHandle } from "@/lib/box-edit";
 import { badgeCenter, exportMetrics, pixelBox } from "@/lib/export-image";
@@ -24,12 +24,19 @@ const PLACEMENT_CLASS = {
   above: styles.badgeAbove,
   below: styles.badgeBelow,
   right: styles.badgeRight,
+  outTopLeft: styles.badgeOutTopLeft,
+  outTopRight: styles.badgeOutTopRight,
+  left: styles.badgeLeft,
+  side: styles.badgeSide,
 };
 
 // Normal boxes have their badge on the top-left corner, so they get no "nw"
 // handle (it would hide the number); that corner is reached with "n" then "w".
+// A badge docked on the top-left corner also leaves that corner without a handle.
 const ALL_HANDLES: ResizeHandle[] = ["n", "ne", "e", "se", "s", "sw", "w"];
+const FULL_HANDLES: ResizeHandle[] = ["nw", ...ALL_HANDLES];
 const CORNER_HANDLES: ResizeHandle[] = ["nw", "ne", "se", "sw"];
+const CORNER_HANDLES_NO_NW: ResizeHandle[] = ["ne", "se", "sw"];
 
 type Drag = {
   id: string;
@@ -41,6 +48,12 @@ type Drag = {
   width: number;
   height: number;
 };
+
+function handlesFor(placement: BadgePlacement, small: boolean): ResizeHandle[] {
+  const docked = placement === "outTopLeft" || placement === "corner";
+  if (small) return docked ? CORNER_HANDLES_NO_NW : CORNER_HANDLES;
+  return docked ? ALL_HANDLES : FULL_HANDLES;
+}
 
 export function AnnotationOverlay({
   annotations,
@@ -75,16 +88,26 @@ export function AnnotationOverlay({
     return () => observer.disconnect();
   }, []);
 
-  const badgeOffsets = useMemo(() => {
+  // Badge placement per box; a small box next to a distance line puts its badge off that line.
+  const placements = useMemo(() => {
     if (!size) return {};
     const metrics = exportMetrics(0); // scale 1: the on-screen badge is 24 px
+    const items = annotations.flatMap((a) =>
+      a.status === "found" && a.box ? [{ id: a.id, box: a.box, kind: a.kind, axis: a.axis, value: a.value }] : [],
+    );
+    return placeBadges(items, size, metrics.badge, 20 * metrics.scale);
+  }, [annotations, size]);
+
+  const badgeOffsets = useMemo(() => {
+    if (!size) return {};
+    const metrics = exportMetrics(0);
     const points = annotations.flatMap((a) =>
       a.status === "found" && a.box
-        ? [{ id: a.id, ...badgeCenter(pixelBox(a.box, size), badgePlacement(a.box, a.kind, a.axis, size.height / size.width), metrics, size) }]
+        ? [{ id: a.id, ...badgeCenter(pixelBox(a.box, size), placements[a.id] ?? badgePlacement(a.box, a.kind, a.axis, size.height / size.width), metrics, size) }]
         : [],
     );
     return separateBadges(points, metrics.badge, size.height);
-  }, [annotations, size]);
+  }, [annotations, size, placements]);
 
   function startDrag(
     e: PointerEvent<HTMLElement>,
@@ -129,7 +152,9 @@ export function AnnotationOverlay({
         if (a.status !== "found" || !a.box) return null;
         const found = a as Annotation & { box: BoxPercent };
         const selected = a.id === selectedId;
-        const placement = badgePlacement(a.box, a.kind, a.axis, size ? size.height / size.width : undefined);
+        const usual = badgePlacement(a.box, a.kind, a.axis, size ? size.height / size.width : undefined);
+        const small = usual !== "corner";
+        const placement = placements[a.id] ?? usual;
         const measure = a.kind === "measure" && a.axis ? a.axis : null;
         return (
           <div
@@ -152,7 +177,9 @@ export function AnnotationOverlay({
                 <span className={`${styles.line} ${styles[`${measure}Line`]}`} />
                 <span className={`${styles.cap} ${styles[`${measure}Cap`]} ${styles.capStart}`} />
                 <span className={`${styles.cap} ${styles[`${measure}Cap`]} ${styles.capEnd}`} />
-                {a.value && <span className={styles.valueLabel}>{a.value}</span>}
+                {a.value && (
+                  <span className={`${styles.valueLabel} ${measure === "vertical" ? styles.valueLabelBeside : ""}`}>{a.value}</span>
+                )}
               </>
             )}
             <span
@@ -162,7 +189,7 @@ export function AnnotationOverlay({
               {index + 1}
             </span>
             {selected &&
-              (placement === "corner" ? ALL_HANDLES : CORNER_HANDLES).map((h) => (
+              handlesFor(placement, small).map((h) => (
                 <span
                   key={h}
                   className={`${styles.handle} ${styles[`handle_${h}`]}`}

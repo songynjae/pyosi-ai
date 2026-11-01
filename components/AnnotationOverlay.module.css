@@ -78,6 +78,7 @@
 .measure {
   border-color: transparent;
   background: none;
+  z-index: 1; /* above neighbouring boxes, so their border and tint never cross the value label */
 }
 
 .measure.selected {
@@ -151,6 +152,34 @@
   font-weight: 700;
   white-space: nowrap;
   pointer-events: none;
+}
+
+/* On a vertical line the value sits left of the line, clear of the badge on its right. */
+.valueLabelBeside {
+  left: auto;
+  right: calc(50% + 6px);
+  transform: translateY(-50%);
+}
+
+/* Outside the box: docked on a top corner, or centered on its left or right side. */
+.badgeOutTopLeft {
+  top: -21px;
+  left: -21px;
+}
+
+.badgeOutTopRight {
+  top: -21px;
+  left: calc(100% - 3px);
+}
+
+.badgeLeft {
+  top: calc(50% - 12px);
+  left: -32px;
+}
+
+.badgeSide {
+  top: calc(50% - 12px);
+  left: calc(100% + 8px);
 }
 
 /* Vertical distance line: the badge sits beside the middle of the line. */

@@ -1,4 +1,4 @@
-import { badgePlacement, type BadgePlacement } from "./badge-placement.ts";
+import { badgeCenterOf, badgePlacement, placeBadges, type BadgePlacement } from "./badge-placement.ts";
 import { separateBadges } from "./badge-layout.ts";
 import { capitalizeFirst } from "./format-label.ts";
 import type { Annotation, BoxPercent, MeasureAxis } from "./types";
@@ -102,14 +102,23 @@ export function measureMarks(
   };
 }
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max);
+/**
+ * Center of the value label of a distance line: on the middle of a horizontal line, and left of
+ * a vertical one so the numbered badge on its right stays clear. Matches the on-screen drawing.
+ */
+export function valueLabelCenter(
+  center: { x: number; y: number },
+  axis: MeasureAxis,
+  labelWidth: number,
+  m: Metrics,
+): { x: number; y: number } {
+  if (axis === "vertical") return { x: center.x - 6 * m.scale - labelWidth / 2, y: center.y };
+  return center;
 }
 
 /**
- * Center of the numbered badge on the image, matching the on-screen rule:
- * on the box's top-left corner, or centered above (below near the top edge)
- * for small boxes. Kept inside the image so it is never cut off.
+ * Center of the numbered badge on the image, matching the on-screen rule (see badgeCenterOf):
+ * kept inside the image so it is never cut off.
  */
 export function badgeCenter(
   box: PixelBox,
@@ -117,25 +126,7 @@ export function badgeCenter(
   m: Metrics,
   size: Size,
 ): { x: number; y: number } {
-  const gap = 20 * m.scale;
-  let x = box.x;
-  let y = box.y;
-  if (placement === "right") {
-    // Beside the middle of a vertical line, clear of its 2 px stroke.
-    x = box.x + box.width / 2 + 20 * m.scale;
-    y = box.y + box.height / 2;
-  } else if (placement === "above") {
-    x = box.x + box.width / 2;
-    y = box.y - gap;
-  } else if (placement === "below") {
-    x = box.x + box.width / 2;
-    y = box.y + box.height + gap;
-  }
-  const r = m.badge / 2;
-  return {
-    x: clamp(x, r, size.width - r),
-    y: clamp(y, r, size.height - r),
-  };
+  return badgeCenterOf(placement, box, m.badge, size);
 }
 
 /** One line of the description list. Entries without a location say so. */
@@ -262,22 +253,31 @@ export async function renderExport(
       .map((a, index) => ({ a, index }))
       .filter(({ a }) => a.status === "found" && a.box);
     if (format !== "original") {
+      // Distance lines after the boxes, so a neighbouring box never crosses their value label.
       for (const { a } of found) {
+        if (a.kind === "measure" && a.axis) continue;
         const px = pixelBox(a.box as BoxPercent, size);
-        if (a.kind === "measure" && a.axis) {
-          drawMeasure(ctx, px, a.axis, a.value, m, listFont);
-          continue;
-        }
         ctx.fillStyle = "rgba(224, 49, 49, 0.1)";
         ctx.fillRect(px.x, px.y, px.width, px.height);
         ctx.lineWidth = m.stroke;
         ctx.strokeStyle = CALLOUT;
         ctx.strokeRect(px.x, px.y, px.width, px.height);
       }
+      for (const { a } of found) {
+        if (a.kind === "measure" && a.axis) {
+          drawMeasure(ctx, pixelBox(a.box as BoxPercent, size), a.axis, a.value, m, listFont);
+        }
+      }
       // Badges last so no box outline is drawn over a number.
+      const placements = placeBadges(
+        found.map(({ a }) => ({ id: a.id, box: a.box as BoxPercent, kind: a.kind, axis: a.axis, value: a.value })),
+        size,
+        m.badge,
+        20 * m.scale,
+      );
       const centers = found.map(({ a, index }) => {
         const box = a.box as BoxPercent;
-        return { a, index, ...badgeCenter(pixelBox(box, size), badgePlacement(box, a.kind, a.axis, size.height / size.width), m, size) };
+        return { a, index, ...badgeCenter(pixelBox(box, size), placements[a.id] ?? badgePlacement(box, a.kind, a.axis, size.height / size.width), m, size) };
       });
       const offsets = separateBadges(
         centers.map((c) => ({ id: c.a.id, x: c.x, y: c.y })),
@@ -346,12 +346,13 @@ function drawMeasure(
   const padX = 4 * m.scale;
   const w = ctx.measureText(value).width + 2 * padX;
   const h = m.listFont * 1.2;
+  const c = valueLabelCenter(marks.center, axis, w, m);
   ctx.fillStyle = "rgba(255, 255, 255, 0.92)";
-  ctx.fillRect(marks.center.x - w / 2, marks.center.y - h / 2, w, h);
+  ctx.fillRect(c.x - w / 2, c.y - h / 2, w, h);
   ctx.fillStyle = CALLOUT;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(value, marks.center.x, marks.center.y + 1);
+  ctx.fillText(value, c.x, c.y + 1);
   ctx.font = font;
 }
 
