@@ -1,12 +1,12 @@
 # Pyosi
 
-**Pyosi identifies the part of a screenshot you are talking about, and marks it.** Write or paste the message you would send with the screenshot ("the delivery date on the second line looks wrong", "the card and the button are too close"), and Pyosi works out which parts you mean, marks them with numbered boxes, draws the distance when you talk about the space between two things, and says "not found" when a part is not on the screen and "ambiguous" when several parts fit, instead of guessing. Each mark has a short explanation you can edit, and the marked image can be exported as a PNG. Built for the Meta Global AI Developer Hackathon (Indie Developer Track, "Build for Your World"), with Meta's Muse Spark model through the Meta Model API.
+**Pyosi identifies the part of a screenshot you are talking about, and marks it.** Write or paste the message you would send with the screenshot ("the delivery date on the second line looks wrong", "the card and the button are too close"), and Pyosi works out which parts you mean, marks them with numbered boxes, highlights the distance when you talk about the space between two things, and says "not found" when it cannot find a part and "ambiguous" when several parts could be meant, instead of guessing. Each mark has a short explanation you can edit, and the marked image can be exported as a PNG. Built for the Meta Global AI Developer Hackathon (Indie Developer Track, "Build for Your World"), with Meta's Muse Spark model through the Meta Model API.
 
 It is not an image analyzer: it does not describe what is in a picture. It starts from what the person says and answers one question, "which part is that?", with positions that are checked against the pixels and an evaluation harness that measures how often the marks are right.
 
 ## What it does
 
-1. **Identifies the part you refer to, and marks it.** It finds things by what they are (a date, a price, "the message where she confirms the price") and not only by name, from a rough note or a full message. The model answers with boxes on a 0-1000 grid; Pyosi converts and validates them. A note about an element that is not on the screen is reported as "not found", and a note that fits several elements as "ambiguous"; neither gets an invented box.
+1. **Identifies the part you refer to, and marks it.** It finds things by what they are (a date, a price, "the message where she confirms the price") and not only by name, from a rough note or a full message. The model answers with boxes on a 0-1000 grid; Pyosi converts and validates them. A note about an element Pyosi cannot find (for example because it is not on the screen) is reported as "not found", and a note that fits several elements as "ambiguous"; neither gets an invented box.
 2. **Highlights the distance for spacing notes.** The model finds every item of a row or column once. The code works out the distance between neighboring items, and the line is then snapped to the real edges in the original image's pixels (when the background is plain enough to be sure).
 3. **Lets you edit the result:** move, resize and delete boxes, edit labels and descriptions.
 4. **Exports a PNG** at the original image size (annotated, which adds the description list below the image; boxes only; or the original), as a download or to the clipboard.
@@ -62,7 +62,7 @@ If Generate says "The model API key is not configured on the server", check that
 | `npm run build` | Production build (includes type checking) |
 | `npm start` | Serve the production build |
 | `npm run lint` | Run ESLint |
-| `npm test` | Run the unit tests (Node's built-in runner; 185 tests; the model API is replaced by a fake `fetch`, so tests never call the network) |
+| `npm test` | Run the unit tests (Node's built-in runner; 204 tests; the model API is replaced by a fake `fetch`, so tests never call the network) |
 | `npm run eval` | Evaluation harness (dry run by default; `--send` makes live requests that cost money; `--replay <dir>` rescores saved answers for free; `--set previous` runs the cases from the previous discovery project) |
 
 ## How well does it work?
@@ -71,8 +71,8 @@ Measured with the evaluation harness (`eval/`, `scripts/eval.mjs`; raw answers k
 
 - **Plain notes about a named or clearly implied element** (cases CM1, CM2, CM6, CM7, CM10: test cases from my previous discovery project, translated from Korean to English): median overlap with the hand-measured box (IoU) 0.93 to 0.99. A missing element was reported as "not found" in 14 of 14 completed runs (CM3, CM3b, CM11).
 - **Previous-project set overall** (the same CM cases): 49 of 60 runs pass (82%; 49 of 57 without the 3 requests that timed out).
-- **Small areas of text on mock screens** (a purchase order, an email, a chat, an invoice; fake data): a table cell and a whole message are marked tightly (median overlap 0.85 and 0.98); a phrase inside a sentence is in the right place but loose (0.60 on 18 px high text); "the total amount due" got the label and the value together where the reference answer was the value only.
-- **"Not found" and "ambiguous" on text screens** (an email, an invoice and a page with six Share buttons; fake data; four cases, 3 runs each): 12 of 12 runs gave the expected answer: an email attachment and a purchase order number that are not on the screen were reported as "not found" with no box, "the Share button does not work" with six Share buttons was reported as "ambiguous", and the one Archived badge was marked (median overlap 0.93).
+- **Small areas of text on mock screens** (a purchase order, an email, a chat, an invoice; sample data): a table cell and a whole message are marked tightly (median overlap 0.85 and 0.98); a phrase inside a sentence is in the right place but loose (0.60 on 18 px high text); "the total amount due" got the label and the value together where the reference answer was the value only.
+- **"Not found" and "ambiguous" on text screens** (an email, an invoice and a page with six Share buttons; sample data; four cases, 3 runs each): 12 of 12 runs gave the expected answer: an email attachment and a purchase order number that are not on the screen were reported as "not found" with no box, "the Share button does not work" with six Share buttons was reported as "ambiguous", and the one Archived badge was marked (median overlap 0.93).
 - **Full messages instead of rough notes** (greeting, several sentences, passing remarks): every completed run marked the right parts and nothing else; the strict wording check scored lower (6 of 15 runs) because polite requests are restated as statements.
 - **Distance lines** (ten cases: a toolbar, an icon list, a web page, synthetic rows and hardware drawings; prompt v11 and v12): 24 of 30 runs pass (80%) with the draft criteria; after snapping, the line ends are typically within a few pixels of the real gap (median 1 px over 50 saved gaps; the worst, 76 px, is on the 8-item list).
 
@@ -84,7 +84,6 @@ Measured with the evaluation harness (`eval/`, `scripts/eval.mjs`; raw answers k
 - On light gray outlines on a white background the snapping can move a distance line's end into the neighboring element (up to about 27 px on the sample card and button).
 - About 5% of the model requests time out (the app sends one request per Generate and does not retry).
 - Only English notes are evaluated. Notes in other languages are accepted and answered in the same language, but that is not measured.
-- The target user (anyone who sends a screenshot with a message asking for a change or a check, often an engineer, a designer or a product manager) is an assumption that has not been validated.
 
 ## Built with Meta Muse Spark
 

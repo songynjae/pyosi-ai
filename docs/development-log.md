@@ -6,7 +6,7 @@ Pyosi's AI feature runs on Meta's Muse Spark model through the Meta Model API (s
 
 ## 1. What Pyosi is, and how the description changed
 
-**Where the idea comes from.** The author's own work. As a product manager, the author always marks a screenshot of a problem before sending it; earlier, as a machinery engineer at a shipbuilding company, the author put photos in slides and added marks and comments for vendors and stakeholders, because communicating with visual content worked better. An informal check with five people (all use screenshots daily; three mark them regularly and find it needs a separate program or looks untidy; two rarely mark) is summarized in `docs/product-brief.md`. It is five people from the author's circle, not a sample, and the target user is still an assumption.
+**Where the idea comes from.** The author's own work. As a product manager, the author always marks a screenshot of a problem before sending it; earlier, as a machinery engineer at a shipbuilding company, the author put photos in slides and added marks and comments for vendors and stakeholders, because communicating with visual content worked better. An informal check with five people (all use screenshots daily; three mark them regularly and find it needs a separate program or looks untidy; two rarely mark) is summarized in `docs/product-brief.md`. It is a small group from the author's circle, so it is a starting point, not a result.
 
 **The first idea (2026-10-27).** Upload a screenshot and rough technical notes; get numbered callouts and bounding boxes with a short explanation each. The first header sentence was "Turn screenshots and rough notes into clear visual explanations". Primary users: engineers who share screenshots in bug reports and reviews.
 
