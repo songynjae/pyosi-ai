@@ -7,7 +7,7 @@ It is not an image analyzer: it does not describe what is in a picture. It start
 ## What it does
 
 1. **Identifies the part you refer to, and marks it.** It finds things by what they are (a date, a price, "the message where she confirms the price") and not only by name, from a rough note or a full message. The model answers with boxes on a 0-1000 grid; Pyosi converts and validates them. A note about an element that is not on the screen is reported as "not found", and a note that fits several elements as "ambiguous"; neither gets an invented box.
-2. **Draws distance lines for spacing notes.** The model locates every item of a row or column once; the code computes the gap between neighbours, and the line is then snapped to the real edges using the original image's pixels (when the background is plain enough to be sure).
+2. **Highlights the distance for spacing notes.** The model finds every item of a row or column once. The code works out the distance between neighboring items, and the line is then snapped to the real edges in the original image's pixels (when the background is plain enough to be sure).
 3. **Lets you edit the result:** move, resize and delete boxes, edit labels and descriptions.
 4. **Exports a PNG** at the original image size (annotated, which adds the description list below the image; boxes only; or the original), as a download or to the clipboard.
 5. **Keeps the notes' language and tone** (a question stays a question; the answer is written in the language of the notes).
@@ -67,7 +67,7 @@ If Generate says "The model API key is not configured on the server", check that
 
 ## How well does it work?
 
-Measured with the evaluation harness (`eval/`, `scripts/eval.mjs`; raw answers kept so any failure can be replayed), on fixed cases, several runs each. Details and the history are in [docs/eval-log.md](docs/eval-log.md), [docs/test-plan.md](docs/test-plan.md) and [docs/development-log.md](docs/development-log.md).
+Measured with the evaluation harness (`eval/`, `scripts/eval.mjs`; raw answers kept so any failure can be replayed), on fixed cases, several runs each. Details and the history are in [docs/eval-log.md](docs/eval-log.md) and [docs/development-log.md](docs/development-log.md).
 
 - **Plain notes about a named or clearly implied element** (cases CM1, CM2, CM6, CM7, CM10: test cases from my previous discovery project, translated from Korean to English): median overlap with the hand-measured box (IoU) 0.93 to 0.99. A missing element was reported as "not found" in 14 of 14 completed runs (CM3, CM3b, CM11).
 - **Previous-project set overall** (the same CM cases): 49 of 60 runs pass (82%; 49 of 57 without the 3 requests that timed out).
@@ -81,10 +81,10 @@ Measured with the evaluation harness (`eval/`, `scripts/eval.mjs`; raw answers k
 - Plural references: "the card icons" is often answered as ambiguous or with one merged box; on text screens "all the delivery dates" or "every unit price" worked in most runs (the right items in 11 of 12 runs, every box within overlap 0.5 in 8 of 12), with one run that drew a single box around a whole column and one screen where the boxes sat about 14 px too low.
 - Long lists (8 items in a column) were the weakest distance case (0 of 5 runs); with the padding for tall images a synthetic list of 8 passed 5 of 5 runs (one case, 5 runs). Small icon boxes are less exact.
 - Tall phone screenshots (390x844, two made-up apps, 3 runs per case): without padding the vertical position of a box varied by tens of pixels from run to run (19 of 48 runs passed). The app now sends tall images between 2:1 and 3:1 with white padding on the right (30 of 48 runs pass), but small or thin targets (a dashed goal line, an icon among others) still often miss. A 16:9 phone screen and images taller than 3:1 are sent as before and were not tested; "not found", "ambiguous" and a gap between two elements worked either way.
-- On light grey outlines on a white background the snapping can move a distance line's end into the neighbouring element (up to about 27 px on the sample card and button).
+- On light gray outlines on a white background the snapping can move a distance line's end into the neighboring element (up to about 27 px on the sample card and button).
 - About 5% of the model requests time out (the app sends one request per Generate and does not retry).
 - Only English notes are evaluated. Notes in other languages are accepted and answered in the same language, but that is not measured.
-- The target user (engineers who share screenshots) is an assumption that has not been validated.
+- The target user (anyone who sends a screenshot with a message asking for a change or a check, often an engineer, a designer or a product manager) is an assumption that has not been validated.
 
 ## Built with Meta Muse Spark
 
@@ -128,7 +128,7 @@ The hosted demo runs on Netlify (`netlify.toml`; Netlify detects Next.js). Envir
 
 **Open items for the security check**
 
-- Meta's retention and training terms for standard-mode requests, to be confirmed from Meta's documentation.
+- Meta's [pricing page](https://dev.meta.ai/products/meta-model-api/) says `muse-spark-1.3` requests are "Not used to improve our products." How long Meta keeps requests is not confirmed.
 - Netlify's own request logging, to be checked in its documentation.
 - Prompt injection: the notes are fenced as data in the prompt and the model's answer is validated, but this is not a guarantee.
 - The call limits are per server instance, not shared across instances.
@@ -149,9 +149,8 @@ public/       Static files, including the Floraday test screenshot
 ## Docs
 
 - [Product brief](docs/product-brief.md)
-- [Test plan](docs/test-plan.md), [Evaluation plan (M5)](docs/m5-plan.md)
-- [Evaluation log](docs/eval-log.md)
 - [Development log](docs/development-log.md)
+- [Evaluation log](docs/eval-log.md)
 
 ## License
 

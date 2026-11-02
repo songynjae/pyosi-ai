@@ -45,7 +45,7 @@ One request, no retries. Raw response: `spikes/m2-2b/results/run-2026-10-28T01-3
 
 Notes:
 - Model returned keys in alphabetical order, not schema order.
-- Single sample: says nothing about variance, `ambiguous`/`not_found` behaviour or other screenshots.
+- Single sample: says nothing about variance, `ambiguous`/`not_found` behavior or other screenshots.
 - Output tokens were mostly reasoning (141 of 192) even at `minimal`.
 
 ### Second request: `not_found` case (Refresh button)
@@ -63,5 +63,5 @@ Notes: `confidence` on `not_found` (0.95) is confidence in the absence, not a lo
 ## Open questions
 - Does `strict: true` accept the nullable `box_2d` (`anyOf` below the root)? (`strict: false` works.)
 - Does reasoning change box quality?
-- `ambiguous` behaviour is untested, and a larger sample is needed to judge variance.
+- `ambiguous` behavior is untested, and a larger sample is needed to judge variance.
 - Is `sam-3.1` worth a later spike if Spark's boxes are loose?

@@ -171,7 +171,7 @@ Cases, notes and expectations were written into `eval/cases-text.mjs` before the
 | T10 (email) | "Please open the attachment that Min-jun sent and check it." (the email has no attachment) | 3 | pass 3/3: `not_found`, no box |
 | T11 (invoice) | "Please check the purchase order number on this invoice." (none on the invoice) | 3 | pass 3/3: `not_found`, no box |
 
-12 of 12 runs pass. Only 3 runs per case and the cases are easy ones for a screen with plain text, so this shows the behaviour on these four notes, not a rate.
+12 of 12 runs pass. Only 3 runs per case and the cases are easy ones for a screen with plain text, so this shows the behavior on these four notes, not a rate.
 
 ## 2026-10-31, prompt annotate.v12: a phone screenshot of a made-up weight app (text set, T12 to T19; 24 live requests)
 Screen: `eval/fixtures/text/t6-weight.html` (390x844, fake data; the first tall image in the evaluation, sent as 780x1688 after the 2x upscale). Cases, notes and expectations were written into `eval/cases-text.mjs` before the run and were not changed afterwards. Raw answers: `.eval/2026-10-31-t12-t19` (git-ignored). 9 of 24 runs pass (38%); nothing was tuned or dropped.

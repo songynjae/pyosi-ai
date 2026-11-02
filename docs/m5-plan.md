@@ -1,4 +1,4 @@
-# M5 plan: quality evaluation and stabilization (DRAFT for approval)
+# M5 plan: quality evaluation and stabilization
 
 Written 2026-10-29. Scope: English notes only (see `docs/test-plan.md`). No voice input.
 

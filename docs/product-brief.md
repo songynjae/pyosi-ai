@@ -22,7 +22,7 @@ The user adds a screenshot and the notes or message they would send with it. Pyo
 
 When a part cannot be found, Pyosi does two things:
 1. **It does not make anything up.** If the part is not on the screen, Pyosi says "not found" instead of marking something else.
-2. **It shows the result, so the sender can check.** A part the notes name that cannot be found is labelled "not found" in the annotation list and in the annotated image, both when the message talks about it as if it were there (for example "the message where she promises the discount") and when the message itself says it is missing. The sender sees what was found and what was not before sending.
+2. **It shows the result, so the sender can check.** A part the notes name that cannot be found is labeled "not found" in the annotation list and in the annotated image, both when the message talks about it as if it were there (for example "the message where she promises the discount") and when the message itself says it is missing. The sender sees what was found and what was not before sending.
 
 When it cannot tell which of several parts is meant, it says "ambiguous" instead of guessing.
 
