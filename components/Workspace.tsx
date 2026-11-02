@@ -448,7 +448,7 @@ export function Workspace() {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               maxLength={MAX_NOTES_CHARS}
-              placeholder="e.g. orders API times out after 30s, retry doesn't help"
+              placeholder="e.g. The Submit button is not clickable"
             />
           </label>
 
