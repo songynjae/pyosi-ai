@@ -468,7 +468,7 @@ export function Workspace() {
             )
           )}
           <p className={styles.generateHint}>
-            Your screenshot and notes are sent to Meta&apos;s Muse Spark model API to generate the annotations.
+            Your screenshot and notes are sent to Meta&apos;s Muse Spark model API to generate the annotations. Pyosi does not store them. Please don&apos;t upload confidential screenshots.
           </p>
           {generateError && (
             <p className={styles.error} role="alert">
