@@ -4,31 +4,33 @@
 Pyosi finds the part of a screenshot you are talking about, and marks it.
 
 ## Problem Statement
-**Marking a screenshot by hand takes a separate tool or several clicks, so people either spend the time or fall back on describing in words, and the reader has to work out which part is meant.**
+**A message alone often cannot show which part of a screenshot is meant, so people send an image with it and mark the part they mean.**
 
-- **For the sender:** the options are a paragraph that points to the part in words, or a separate program (Paint, Excel, PowerPoint) to draw boxes, arrows and comments by hand.
-- **For the reader:** the author's own experience is that a marked image is understood faster than a description (for example with vendors and stakeholders). The informal check below did not cover the reader's side, so this is the author's experience, not a measured result.
+- **For the sender:** writes the message, marks the part of a screenshot by hand in a snipping tool, and attaches it. For neater marks, redoes it in PowerPoint or another tool.
+- **For the reader:** the author's own experience is that a marked image tells the reader exactly which part is meant, which a message alone does not always do as clearly. The informal check below did not cover the reader's side, so this is the author's experience, not a measured result.
 
-**Where this comes from.** The idea comes from the author's own work. As a product manager, the author always marks a screenshot of a problem before sending it. Earlier, as a machinery engineer at a shipbuilding company, the author often put a photo in a slide and added marks and comments before sending it to vendors and stakeholders, because communicating with visual content worked better.
+**Where this comes from.** The idea comes from the author's own work. As a product manager, the author always marks a screenshot of a problem before sending it. Earlier, as a machinery engineer at a shipbuilding company, the author often put a photo in a slide and added marks and comments before sending it to vendors and stakeholders, because communicating with visual content worked better. Marking each screenshot by hand was the tedious part, and that is where the idea for Pyosi started.
 
-**An informal check.** The author asked five people from their own circle how they use screenshots (overseas sales, two shipbuilding engineers, IT business development, a software engineer). All five use screenshots every day. Three mark them regularly (highlights, boxes, arrows, comments) and said marking needs a separate program or looks untidy. Two rarely mark: they crop and explain in text, and one said adding text to an image takes several clicks. This is five people, not a sample.
+**An informal check.** The author asked five people from their own circle how they use screenshots (overseas sales, two shipbuilding engineers, IT business development, a software engineer). All five use screenshots every day. Three mark them regularly (highlights, boxes, arrows, comments) and said marking needs a separate program (e.g. PowerPoint, Paint) or looks untidy. Two rarely mark: they crop and explain in text, and one said adding text to an image takes several clicks. Five people is a small group, so this is a starting point, not a result.
 
-## Target users (unvalidated assumption)
+## Target users
+*Based on the author's own work and an informal check of five people.*
+
 - **Primary:** anyone who sends a screenshot together with a message that asks for a change or a check, so that the reader sees which part is meant. Often an engineer, a designer or a product manager (bug reports, PR and design reviews, incident threads).
 - **Secondary:** people who read those messages and act on them; and professionals in other fields who explain things with screenshots or drawings.
 
 ## Solution
-The user adds a screenshot and the notes or message they would send with it. Pyosi finds the parts the notes refer to and marks them with numbered boxes, each with a short explanation; for notes about the space between two elements it draws the distance instead. The marks can be edited and exported as a PNG.
+The user adds a screenshot and the notes or message they would send with it. Pyosi finds the parts the notes refer to and marks them with numbered boxes, each with a short explanation; for notes about the space between two elements it highlights the distance instead. The marks can be edited and exported as a PNG.
 
 When a part cannot be found, Pyosi does two things:
-1. **It does not make anything up.** If the part is not on the screen, Pyosi says "not found" instead of marking something else.
+1. **It does not make anything up.** If Pyosi cannot find the part (for example because it is not on the screen), it says "not found" instead of marking something else.
 2. **It shows the result, so the sender can check.** A part the notes name that cannot be found is labeled "not found" in the annotation list and in the annotated image, both when the message talks about it as if it were there (for example "the message where she promises the discount") and when the message itself says it is missing. The sender sees what was found and what was not before sending.
 
 When it cannot tell which of several parts is meant, it says "ambiguous" instead of guessing.
 
 Value (what Pyosi aims to give; not tested with users):
 - **For the sender:** no drawing by hand. The sender writes the message they were going to send anyway, checks the marks, fixes what is off, and sends an image that says which part is meant. A "not found" label shows, before sending, that the message points to something that is not on the screen.
-- **For the reader:** sees what is meant right away, without reading a description of where it is.
+- **For the reader:** sees exactly which part is meant, instead of relying on the message alone.
 
 ## MVP scope (deadline: 2026-11-04, 9 pm ET)
 In scope:
@@ -56,4 +58,4 @@ M1 to M6 are used in file names and code comments, for example `docs/m5-plan.md`
 ## Open questions
 - Which model/provider handles vision input? Answered: Meta Muse Spark (`muse-spark-1.3`) through the Meta Model API.
 - How accurate are model-generated bounding boxes, and is a manual correction step required? Measured in `docs/eval-log.md`: good on clearly named parts, weaker on thin or small targets; the boxes can be edited in the app.
-- Are engineers really the best first audience? Still open.
+- Who is the best first audience: engineers, designers or product managers? Still open.
