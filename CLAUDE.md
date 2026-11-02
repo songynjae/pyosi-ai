@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 ## Project
-Pyosi is an AI-powered visual explanation tool. Users upload a screenshot and rough technical notes; Pyosi produces numbered callouts and bounding boxes with short explanations. It is a side project aimed at a hackathon submission, with a submission deadline of 2026-11-04 21:00 ET (Wednesday; started 2026-10-27). Feature freeze: Friday 2026-10-30; Saturday to Tuesday is buffer with no new features. Primary users are engineers; this is an unvalidated assumption. See `docs/product-brief.md`.
+Pyosi is an AI-powered visual explanation tool. Users upload a screenshot and rough technical notes; Pyosi produces numbered callouts and bounding boxes with short explanations. It is a side project aimed at a hackathon submission, with a submission deadline of 2026-11-04 21:00 ET (Wednesday; started 2026-10-27). Feature freeze: Friday 2026-10-30; Saturday to Tuesday is buffer with no new features. Primary users are people who send a screenshot with a message asking for a change or a check, often engineers, designers or product managers; this is an unvalidated assumption. See `docs/product-brief.md`.
 
 ## Stack
 TypeScript, Next.js (App Router), React, Node.js runtime for API routes. npm. Plain CSS modules, no UI library.
